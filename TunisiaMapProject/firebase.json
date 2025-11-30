@@ -6,7 +6,7 @@
     "indexes": "firestore.indexes.json"
   },
   "hosting": {
-    "public": "dist/TunisiaMapProject/browser",
+    "public": "public",
     "ignore": [
       "firebase.json",
       "**/.*",

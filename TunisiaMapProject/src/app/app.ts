@@ -2,11 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LeafletModule } from '@bluehalo/ngx-leaflet';
 import { MapDataService, Location } from './services/map-data.service';
-import * as L from 'leaflet';
 import { forkJoin } from 'rxjs';
-
-// Import important pour que le plugin s'attache à L
-import 'leaflet.markercluster';
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-root',
@@ -19,56 +16,73 @@ export class App implements OnInit {
   allLocations: Location[] = [];
   categories: string[] = [];
   selectedCategory: string = '';
-
-  // Configuration de la carte
-  options = {
-    layers: [
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
-      })
-    ],
-    zoom: 7,
-    center: L.latLng(34.0, 9.0)
-  };
-
-  // On utilise 'any' pour contourner le typage strict de MarkerClusterGroup qui peut parfois poser problème
-  markerClusterGroup: any; 
-  geoJsonLayer: L.GeoJSON | undefined;
-  layers: L.Layer[] = [];
+  
+  // Options de la carte
+  options: any;
+  
+  markerClusterGroup: any;
+  geoJsonLayer: any;
+  layers: any[] = [];
+  
+  private isPluginLoaded = false;
 
   constructor(private mapDataService: MapDataService) {}
 
   ngOnInit() {
-    // Fix des icônes par défaut de Leaflet qui disparaissent dans Angular
-    this.fixLeafletIcons();
+    this.options = {
+      layers: [
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+          maxZoom: 19,
+          attribution: '&copy; OpenStreetMap &copy; CARTO'
+        })
+      ],
+      zoom: 7,
+      center: L.latLng(34.0, 9.0)
+    };
+
+    this.initializeMapData();
+  }
+
+  async initializeMapData() {
+    (window as any).L = L;
+
+    try {
+      await import('leaflet.markercluster');
+      this.isPluginLoaded = true;
+    } catch (e) {
+      console.error('Erreur chargement plugin', e);
+    }
+
+    this.loadData();
+  }
+
+  loadData() {
+    this.fixIcons();
 
     forkJoin({
       locations: this.mapDataService.getLocations(),
       geoJson: this.mapDataService.getGovernorates()
     }).subscribe({
       next: (data) => {
-        // 1. Gestion des lieux
         if (data.locations && data.locations.length > 0) {
           this.allLocations = data.locations;
-          // Extraction des catégories uniques
           const uniqueCats = new Set(this.allLocations.map(l => l.categorie).filter(c => c));
           this.categories = Array.from(uniqueCats).sort();
           
-          // Initialisation des clusters avec tous les points au début
-          this.initMarkers(this.allLocations);
+          if (this.isPluginLoaded) {
+            this.updateMarkers(this.allLocations);
+          }
         }
 
-        // 2. Gestion des frontières (Gouvernorats)
         if (data.geoJson) {
-          this.initGeoJsonLayer(data.geoJson);
+            this.initGeoJsonLayer(data.geoJson);
         }
       },
       error: (err) => console.error('Erreur chargement:', err)
     });
   }
 
-  fixLeafletIcons() {
+  fixIcons() {
     const iconRetinaUrl = 'assets/marker-icon-2x.png';
     const iconUrl = 'assets/marker-icon.png';
     const shadowUrl = 'assets/marker-shadow.png';
@@ -87,19 +101,20 @@ export class App implements OnInit {
 
   initGeoJsonLayer(geoJsonData: any) {
     this.geoJsonLayer = L.geoJSON(geoJsonData, {
-      style: (feature) => ({
-        color: '#444', weight: 1, opacity: 0.5, fillColor: 'transparent', fillOpacity: 0
-      }),
-      onEachFeature: (feature, layer) => {
-        layer.on('mouseover', (e) => { 
-            const l = e.target; 
-            l.setStyle({ weight: 3, color: '#FF1493', opacity: 0.8 }); 
-        });
-        layer.on('mouseout', (e) => { 
-            const l = e.target; 
-            this.geoJsonLayer?.resetStyle(l); 
-        });
-      }
+      // --- MODIFICATION ICI : interactive: false ---
+      // Cela empêche la classe 'leaflet-interactive' d'être ajoutée
+      // Les contours ne captureront plus les clics de souris
+      interactive: false, 
+      
+      style: (feature: any) => ({
+        color: '#333', 
+        weight: 1, 
+        opacity: 0.6, 
+        fillColor: 'transparent', 
+        fillOpacity: 0
+      })
+      // J'ai supprimé 'onEachFeature' car avec interactive:false, 
+      // les événements mouseover/click ne fonctionnent plus de toute façon.
     });
     this.layers.push(this.geoJsonLayer);
   }
@@ -110,38 +125,43 @@ export class App implements OnInit {
     
     if (this.selectedCategory) {
       const filtered = this.allLocations.filter(l => l.categorie === this.selectedCategory);
-      this.initMarkers(filtered);
+      this.updateMarkers(filtered);
     } else {
-      this.initMarkers(this.allLocations);
+       this.updateMarkers(this.allLocations);
     }
   }
 
-  initMarkers(locations: Location[]) {
-    // Suppression de l'ancien groupe s'il existe
+  updateMarkers(locations: Location[]) {
+    if (!this.isPluginLoaded) return;
+
     if (this.markerClusterGroup) {
-      const index = this.layers.indexOf(this.markerClusterGroup);
-      if (index > -1) {
-        this.layers.splice(index, 1);
-        // Force update par réassignation
-        this.layers = [...this.layers];
-      }
+      this.layers = this.layers.filter(l => l !== this.markerClusterGroup);
     }
 
-    // Création du groupe de cluster avec style personnalisé
-    this.markerClusterGroup = (L as any).markerClusterGroup({
-      removeOutsideVisibleBounds: true,
+    if (!(L as any).markerClusterGroup) {
+        const GlobalL = (window as any).L;
+        if (GlobalL && GlobalL.markerClusterGroup) {
+            this.createClusterGroup(GlobalL, locations);
+            return;
+        }
+        return;
+    }
+
+    this.createClusterGroup(L, locations);
+  }
+
+  createClusterGroup(LeafletObj: any, locations: Location[]) {
+    this.markerClusterGroup = LeafletObj.markerClusterGroup({ 
+      maxClusterRadius: 80,
       animate: true,
-      // Fonction pour créer l'icône du cluster (le rond coloré)
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
       iconCreateFunction: function (cluster: any) {
         const childCount = cluster.getChildCount();
         let c = ' marker-cluster-';
-        if (childCount < 10) {
-          c += 'small';
-        } else if (childCount < 100) {
-          c += 'medium';
-        } else {
-          c += 'large';
-        }
+        if (childCount < 10) c += 'small';
+        else if (childCount < 100) c += 'medium';
+        else c += 'large';
 
         return new L.DivIcon({ 
           html: '<div><span>' + childCount + '</span></div>', 
@@ -151,25 +171,16 @@ export class App implements OnInit {
       }
     });
 
-    // Création des marqueurs
     const markers = locations.map(loc => {
       return L.marker([loc.lat, loc.lng], { title: loc.nom })
-        .bindPopup(`
-          <div style="font-family:sans-serif; text-align:center;">
-            <h4 style="margin:0; color:#FF1493;">${loc.nom}</h4>
-            <span style="background:#eee; padding:2px 6px; border-radius:4px; font-size:12px;">${loc.categorie}</span>
-          </div>
-        `);
+        .bindPopup(`<div style="text-align:center"><b>${loc.nom}</b><br><span style="color:#666">${loc.categorie}</span></div>`);
     });
 
-    // Ajout des marqueurs au groupe
     this.markerClusterGroup.addLayers(markers);
-    
-    // Ajout du groupe à la carte
-    this.layers.push(this.markerClusterGroup);
+    this.layers = [...this.layers, this.markerClusterGroup];
   }
 
-  onMapReady(map: L.Map) {
-    // Ajustement automatique de la vue si nécessaire
+  onMapReady(map: any) {
+    setTimeout(() => { map.invalidateSize(); }, 200);
   }
 }

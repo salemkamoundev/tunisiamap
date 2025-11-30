@@ -3,19 +3,18 @@
   <div class="filter-controls">
     <label>Choisissez une catégorie :</label>
     <select (change)="onCategoryChange($event)" class="category-select">
-      <option value="" selected disabled>-- Cliquez pour choisir --</option>
-      
+      <option value="" selected>-- Tout afficher --</option>
       <option *ngFor="let cat of categories" [value]="cat">
         {{ cat }}
       </option>
     </select>
     
-    <div class="count-badge" *ngIf="layers.length > 0">
-      {{ layers.length }} résultats affichés
+    <div class="count-badge" *ngIf="allLocations.length > 0">
+      {{ allLocations.length }} lieux chargés
     </div>
   </div>
 
-  <div
+  <div *ngIf="options"
     class="map-container"
     leaflet
     [leafletOptions]="options"

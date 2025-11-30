@@ -1,4 +1,3 @@
-/* Conteneur principal */
 .map-wrapper {
   position: relative;
   height: 100vh;
@@ -11,7 +10,6 @@
   z-index: 1;
 }
 
-/* Filtres */
 .filter-controls {
   position: absolute;
   top: 20px;
@@ -20,18 +18,17 @@
   background-color: rgba(255, 255, 255, 0.95);
   padding: 15px;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   min-width: 220px;
-  backdrop-filter: blur(5px);
+  font-family: 'Segoe UI', sans-serif;
 }
 
 .filter-controls label {
   font-weight: 600;
   color: #333;
-  font-size: 0.9rem;
 }
 
 .category-select {
@@ -39,20 +36,23 @@
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 14px;
-  cursor: pointer;
   outline: none;
-  transition: border-color 0.3s;
+  transition: 0.3s;
 }
+
 .category-select:focus {
   border-color: #FF1493;
 }
 
-/* --- STYLES DES CLUSTERS PERSONNALISÉS --- */
+.count-badge {
+  font-size: 0.8rem;
+  color: #666;
+  text-align: right;
+}
 
-/* Base du cercle */
+/* --- CUSTOM CLUSTER STYLES --- */
 .custom-cluster {
-  background-clip: padding-box;
-  border-radius: 50%;
+  background: transparent;
 }
 
 .custom-cluster div {
@@ -69,40 +69,48 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  border: 2px solid rgba(255,255,255,0.5);
+  border: 3px solid rgba(255,255,255,0.4);
   transition: transform 0.2s ease;
 }
 
 .custom-cluster div:hover {
-  transform: scale(1.1);
+  transform: scale(1.15);
+  cursor: pointer;
 }
 
-/* Petit Cluster (< 10) - Rose léger */
+/* Petit (<10) : Rose doux */
 .custom-cluster-small div {
-  background: linear-gradient(135deg, #ff80bf 0%, #ff1493 100%);
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+  color: #d63384; 
 }
 
-/* Moyen Cluster (< 100) - Rose Vif / Violet */
+/* Moyen (<100) : Rose vif */
 .custom-cluster-medium div {
-  background: linear-gradient(135deg, #ff1493 0%, #9400d3 100%);
-  width: 42px; /* Un peu plus grand */
+  background: linear-gradient(135deg, #FF1493 0%, #ff4d4d 100%);
+  width: 42px;
   height: 42px;
-  margin-left: -1px;
   margin-top: -1px;
-  font-size: 14px;
+  margin-left: -1px;
+  color: white;
 }
 
-/* Grand Cluster (> 100) - Violet Sombre / Bleu Nuit */
+/* Grand (>100) : Violet/Rose profond */
 .custom-cluster-large div {
-  background: linear-gradient(135deg, #9400d3 0%, #4b0082 100%);
+  background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
   width: 50px;
   height: 50px;
-  margin-left: -5px;
   margin-top: -5px;
-  font-size: 16px;
+  margin-left: -5px;
+  border: 3px solid rgba(255,255,255,0.6);
+  font-size: 1.1rem;
 }
 
-/* Animation du chiffre */
 .custom-cluster span {
   line-height: 1;
+}
+
+/* Force la désactivation des événements sur les polygones SVG */
+/* Utile si Leaflet ajoute quand même la classe par erreur */
+path.leaflet-interactive {
+    pointer-events: none !important;
 }
