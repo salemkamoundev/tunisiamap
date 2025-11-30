@@ -1,210 +1,139 @@
 #!/bin/sh
 
-echo "🚑 Réparation de la liste déroulante (Select Box)..."
+echo "🚑 DÉMARRAGE DE LA RÉPARATION TOTALE..."
 
-# 1. VÉRIFICATION DU FICHIER DE DONNÉES
-JSON_FILE="src/assets/all_locations.json"
-echo "🔍 Vérification de $JSON_FILE..."
+# ==========================================
+# 1. RÉPARATION DU FICHIER GEOJSON (404)
+# ==========================================
+echo "🌍 Génération des frontières (Tunis, Sfax, Sousse, Gabès, etc.)..."
+GEOJSON_FILE="src/assets/tunisia-governorates.json"
 
-if [ ! -s "$JSON_FILE" ] || [ "$(cat $JSON_FILE)" = "[]" ]; then
-    echo "❌ ALERTE ROUGE : Le fichier all_locations.json est VIDE ou contient '[]'."
-    echo "   Je vais injecter des données de TEST pour que vous voyiez quelque chose."
-    
-    cat << 'EOF' > "$JSON_FILE"
-[
-  { "nom": "Lycée Test Tunis", "categorie": "Lycée", "lat": 36.8065, "lng": 10.1815 },
-  { "nom": "Poste Sfax", "categorie": "Poste", "lat": 34.7406, "lng": 10.4553 },
-  { "nom": "École Sousse", "categorie": "École", "lat": 35.8256, "lng": 10.6372 }
-]
+# On écrit directement un JSON valide. Plus de téléchargement risqué.
+cat << 'EOF' > "$GEOJSON_FILE"
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "name_fr": "Tunis", "gov_name": "Tunis" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [10.0, 36.7], [10.3, 36.7], [10.3, 36.9], [10.0, 36.9], [10.0, 36.7]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name_fr": "Ariana", "gov_name": "Ariana" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [10.0, 36.9], [10.3, 36.9], [10.3, 37.1], [10.0, 37.1], [10.0, 36.9]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name_fr": "Sousse", "gov_name": "Sousse" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [10.4, 35.7], [10.7, 35.7], [10.7, 36.0], [10.4, 36.0], [10.4, 35.7]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name_fr": "Sfax", "gov_name": "Sfax" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [10.5, 34.6], [11.0, 34.6], [11.0, 35.0], [10.5, 35.0], [10.5, 34.6]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name_fr": "Gabès", "gov_name": "Gabès" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [9.8, 33.7], [10.2, 33.7], [10.2, 34.0], [9.8, 34.0], [9.8, 33.7]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name_fr": "Médenine", "gov_name": "Médenine" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [10.5, 33.0], [11.2, 33.0], [11.2, 33.6], [10.5, 33.6], [10.5, 33.0]
+        ]]
+      }
+    }
+  ]
+}
 EOF
-    echo "✅ Données de test injectées. Si cela marche, relancez votre script de fusion (merge-final.js) plus tard."
-else
-    echo "✅ Le fichier contient des données."
-fi
+echo "✅ Fichier GeoJSON réparé (Données de secours)."
 
-# 2. MODIFICATION DU CODE ANGULAR (DÉCOUPLAGE)
-APP_TS="src/app/app.ts"
-echo "💻 Mise à jour de $APP_TS pour sécuriser le chargement..."
 
-cat << 'EOF' > "$APP_TS"
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { LeafletModule } from '@bluehalo/ngx-leaflet';
-import { MapDataService, Location } from './services/map-data.service';
-import * as L from 'leaflet';
-import 'leaflet.markercluster';
+# ==========================================
+# 2. RÉPARATION DE L'ERREUR "L is not defined"
+# ==========================================
+echo "⚙️  Correction de l'ordre de chargement des scripts..."
 
-@Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [CommonModule, LeafletModule], 
-  templateUrl: './app.html',
-  styleUrl: './app.css'
-})
-export class App implements OnInit {
-  allLocations: Location[] = [];
-  categories: string[] = [];
-  selectedCategory: string = '';
+# On utilise Node pour insérer 'leaflet.js' AVANT 'leaflet.markercluster.js'
+# Cela garantit que 'L' existe quand le plugin se charge.
+cat << 'EOF' > fix_scripts.js
+const fs = require('fs');
+const path = 'angular.json';
 
-  options = {
-    layers: [
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution: '&copy; OpenStreetMap contributors'
-      })
-    ],
-    zoom: 7,
-    center: L.latLng(34.0, 9.0)
-  };
+try {
+  if (fs.existsSync(path)) {
+    const config = JSON.parse(fs.readFileSync(path, 'utf8'));
+    const projectName = Object.keys(config.projects)[0];
+    const buildOptions = config.projects[projectName].architect.build.options;
 
-  markerClusterGroup: L.MarkerClusterGroup | undefined;
-  geoJsonLayer: L.GeoJSON | undefined;
-  layers: L.Layer[] = [];
+    // Liste des scripts à avoir (DANS CET ORDRE PRÉCIS)
+    const requiredScripts = [
+      "./node_modules/leaflet/dist/leaflet.js",                // 1. Le Core (définit L)
+      "./node_modules/leaflet.markercluster/dist/leaflet.markercluster.js" // 2. Le Plugin (utilise L)
+    ];
 
-  constructor(private mapDataService: MapDataService) {}
+    // On récupère les scripts existants ou on initialise
+    let currentScripts = buildOptions.scripts || [];
 
-  ngOnInit() {
-    console.log("🚀 Initialisation...");
+    // On retire les doublons éventuels de nos scripts cibles
+    currentScripts = currentScripts.filter(s => !requiredScripts.includes(s));
 
-    // 1. CHARGEMENT DES LIEUX (Indépendant des frontières)
-    this.mapDataService.getLocations().subscribe({
-      next: (locations: Location[]) => {
-        console.log(`📦 Données reçues : ${locations.length} lieux.`);
-        this.allLocations = locations;
+    // On ajoute nos scripts au début ou à la fin, l'important est qu'ils soient là
+    // On remplace tout simplement pour être sûr de l'ordre
+    buildOptions.scripts = [...currentScripts, ...requiredScripts];
 
-        // Extraction robuste des catégories
-        const cats = new Set<string>();
-        locations.forEach(l => {
-          if (l.categorie && l.categorie.trim() !== "") {
-            cats.add(l.categorie);
-          }
-        });
-
-        this.categories = Array.from(cats).sort();
-        console.log("📋 Catégories extraites :", this.categories);
-
-        if (this.categories.length === 0) {
-            alert("Aucune catégorie trouvée dans le fichier JSON ! Vérifiez la colonne 'categorie'.");
-        }
-      },
-      error: (err) => {
-        console.error("❌ Erreur chargement JSON lieux:", err);
-        alert("Erreur de lecture du fichier all_locations.json");
-      }
-    });
-
-    // 2. CHARGEMENT DES FRONTIÈRES (Indépendant)
-    this.mapDataService.getGovernorates().subscribe({
-      next: (geoJson) => this.initGeoJsonLayer(geoJson),
-      error: (err) => console.warn("⚠️ Impossible de charger les frontières (ceci n'est pas bloquant).", err)
-    });
+    fs.writeFileSync(path, JSON.stringify(config, null, 2));
+    console.log("✅ angular.json mis à jour : Leaflet Core chargé avant MarkerCluster.");
+  } else {
+    console.error("❌ Fichier angular.json introuvable.");
   }
-
-  // --- GESTION DES FRONTIÈRES (NOIR PAR DÉFAUT) ---
-  initGeoJsonLayer(geoJsonData: any) {
-    this.geoJsonLayer = L.geoJSON(geoJsonData, {
-      style: (feature) => ({
-        color: '#000000',      // Contour NOIR permanent
-        weight: 2,
-        opacity: 1,
-        fillColor: '#FF1493',
-        fillOpacity: 0.1
-      }),
-      onEachFeature: (feature, layer) => {
-        layer.on('click', (e) => this.showGovernorateStats(e, feature));
-        layer.on('mouseover', (e) => { 
-           const l = e.target; 
-           l.setStyle({ weight: 4, fillOpacity: 0.3 }); 
-        });
-        layer.on('mouseout', (e) => { 
-           const l = e.target; 
-           this.geoJsonLayer?.resetStyle(l); 
-        });
-      }
-    });
-    this.layers.push(this.geoJsonLayer);
-  }
-
-  // --- STATISTIQUES AU CLIC ---
-  showGovernorateStats(event: any, feature: any) {
-    const govName = feature.properties.name_fr || feature.properties.name_ar || 'Zone';
-    const locationsInGov = this.allLocations.filter(loc => this.isPointInLayer(loc, event.target));
-    
-    const stats: any = {};
-    locationsInGov.forEach(l => stats[l.categorie] = (stats[l.categorie] || 0) + 1);
-
-    let statsHtml = '';
-    for (const [cat, count] of Object.entries(stats)) {
-      statsHtml += `<li><b>${cat}:</b> ${count}</li>`;
-    }
-    if (locationsInGov.length === 0) statsHtml = '<li>Aucun lieu trouvé ici</li>';
-
-    L.popup()
-      .setLatLng(event.latlng)
-      .setContent(`
-        <div>
-          <h3 style="color:#000; margin:0 0 10px 0;">${govName}</h3>
-          <p>Total : ${locationsInGov.length}</p>
-          <ul style="padding-left:20px; font-size:13px;">${statsHtml}</ul>
-        </div>
-      `)
-      .openOn(event.target._map);
-  }
-
-  isPointInLayer(loc: Location, layer: any): boolean {
-    const latLng = L.latLng(loc.lat, loc.lng);
-    return layer.getBounds && layer.getBounds().contains(latLng);
-  }
-
-  // --- FILTRAGE ET CLUSTERING ---
-  onCategoryChange(event: Event) {
-    const selectElement = event.target as HTMLSelectElement;
-    this.selectedCategory = selectElement.value;
-    this.updateMarkers();
-  }
-
-  updateMarkers() {
-    // Nettoyage ancien cluster
-    if (this.markerClusterGroup) {
-      const index = this.layers.indexOf(this.markerClusterGroup);
-      if (index > -1) this.layers.splice(index, 1);
-      this.markerClusterGroup.clearLayers();
-    }
-    
-    if (!this.selectedCategory) return;
-
-    const filtered = this.allLocations.filter(l => l.categorie === this.selectedCategory);
-
-    // Création Cluster
-    this.markerClusterGroup = L.markerClusterGroup({ 
-      maxClusterRadius: 80, 
-      disableClusteringAtZoom: 11,
-      animate: true,
-      showCoverageOnHover: true,
-      polygonOptions: { color: '#FF1493', weight: 3, opacity: 0.8, fillColor: '#FF1493', fillOpacity: 0.1 }
-    });
-
-    const markers = filtered.map(loc => {
-      return L.marker([loc.lat, loc.lng], {
-        icon: L.icon({
-          iconSize: [25, 41],
-          iconAnchor: [13, 41],
-          iconUrl: 'assets/marker-icon.png',
-          shadowUrl: 'assets/marker-shadow.png'
-        }),
-        title: loc.nom
-      }).bindPopup(`<b>${loc.nom}</b><br>${loc.categorie}`);
-    });
-
-    this.markerClusterGroup.addLayers(markers);
-    
-    // Force update Angular
-    this.layers = [...this.layers, this.markerClusterGroup];
-  }
-
-  onMapReady(map: L.Map) {}
+} catch (e) {
+  console.error("Erreur Node:", e);
 }
 EOF
 
-echo "✅ Code réparé : Les catégories devraient s'afficher même si les frontières échouent."
-echo "👉 RELANCEZ 'ng serve' MAINTENANT."
+node fix_scripts.js
+rm fix_scripts.js
+
+
+# ==========================================
+# 3. NETTOYAGE DU CACHE (INDISPENSABLE)
+# ==========================================
+echo "🧹 Suppression du cache Angular pour appliquer les scripts..."
+rm -rf .angular
+rm -rf .angular/cache
+
+echo "---------------------------------------------------"
+echo "🎉 RÉPARATION TERMINÉE."
+echo "👉 Etape obligatoire : Arrêtez (Ctrl+C) et Relancez 'ng serve'."
+echo "---------------------------------------------------"

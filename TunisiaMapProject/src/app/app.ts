@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { LeafletModule } from '@bluehalo/ngx-leaflet';
 import { MapDataService, Location } from './services/map-data.service';
 import * as L from 'leaflet';
+import { forkJoin } from 'rxjs';
+
+// On garde l'import pour le typage, mais le chargement réel se fait via angular.json
 import 'leaflet.markercluster';
 
 @Component({
@@ -17,6 +20,7 @@ export class App implements OnInit {
   categories: string[] = [];
   selectedCategory: string = '';
 
+  // Options de base
   options = {
     layers: [
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -35,68 +39,48 @@ export class App implements OnInit {
   constructor(private mapDataService: MapDataService) {}
 
   ngOnInit() {
-    console.log("🚀 Initialisation...");
-
-    // 1. CHARGEMENT DES LIEUX (Indépendant des frontières)
-    this.mapDataService.getLocations().subscribe({
-      next: (locations: Location[]) => {
-        console.log(`📦 Données reçues : ${locations.length} lieux.`);
-        this.allLocations = locations;
-
-        // Extraction robuste des catégories
-        const cats = new Set<string>();
-        locations.forEach(l => {
-          if (l.categorie && l.categorie.trim() !== "") {
-            cats.add(l.categorie);
-          }
-        });
-
-        this.categories = Array.from(cats).sort();
-        console.log("📋 Catégories extraites :", this.categories);
-
-        if (this.categories.length === 0) {
-            alert("Aucune catégorie trouvée dans le fichier JSON ! Vérifiez la colonne 'categorie'.");
+    forkJoin({
+      locations: this.mapDataService.getLocations(),
+      geoJson: this.mapDataService.getGovernorates()
+    }).subscribe({
+      next: (data) => {
+        // Gestion des lieux
+        if (data.locations && data.locations.length > 0) {
+          this.allLocations = data.locations;
+          const uniqueCats = new Set(this.allLocations.map(l => l.categorie).filter(c => c));
+          this.categories = Array.from(uniqueCats).sort();
+        }
+        // Gestion des frontières (Contours Noires)
+        if (data.geoJson) {
+            this.initGeoJsonLayer(data.geoJson);
         }
       },
-      error: (err) => {
-        console.error("❌ Erreur chargement JSON lieux:", err);
-        alert("Erreur de lecture du fichier all_locations.json");
-      }
-    });
-
-    // 2. CHARGEMENT DES FRONTIÈRES (Indépendant)
-    this.mapDataService.getGovernorates().subscribe({
-      next: (geoJson) => this.initGeoJsonLayer(geoJson),
-      error: (err) => console.warn("⚠️ Impossible de charger les frontières (ceci n'est pas bloquant).", err)
+      error: (err) => console.error('Erreur chargement:', err)
     });
   }
 
-  // --- GESTION DES FRONTIÈRES (NOIR PAR DÉFAUT) ---
+  // Initialisation des contours des gouvernorats
   initGeoJsonLayer(geoJsonData: any) {
     this.geoJsonLayer = L.geoJSON(geoJsonData, {
       style: (feature) => ({
-        color: '#000000',      // Contour NOIR permanent
-        weight: 2,
-        opacity: 1,
-        fillColor: '#FF1493',
-        fillOpacity: 0.1
+        color: '#000000', weight: 2, opacity: 1, fillColor: '#FF1493', fillOpacity: 0.1
       }),
       onEachFeature: (feature, layer) => {
         layer.on('click', (e) => this.showGovernorateStats(e, feature));
         layer.on('mouseover', (e) => { 
-           const l = e.target; 
-           l.setStyle({ weight: 4, fillOpacity: 0.3 }); 
+            const l = e.target; 
+            l.setStyle({ weight: 4, fillOpacity: 0.3 }); 
         });
         layer.on('mouseout', (e) => { 
-           const l = e.target; 
-           this.geoJsonLayer?.resetStyle(l); 
+            const l = e.target; 
+            this.geoJsonLayer?.resetStyle(l); 
         });
       }
     });
     this.layers.push(this.geoJsonLayer);
   }
 
-  // --- STATISTIQUES AU CLIC ---
+  // Popup statistique
   showGovernorateStats(event: any, feature: any) {
     const govName = feature.properties.name_fr || feature.properties.name_ar || 'Zone';
     const locationsInGov = this.allLocations.filter(loc => this.isPointInLayer(loc, event.target));
@@ -108,17 +92,11 @@ export class App implements OnInit {
     for (const [cat, count] of Object.entries(stats)) {
       statsHtml += `<li><b>${cat}:</b> ${count}</li>`;
     }
-    if (locationsInGov.length === 0) statsHtml = '<li>Aucun lieu trouvé ici</li>';
+    if (locationsInGov.length === 0) statsHtml = '<li>Aucun lieu trouvé</li>';
 
     L.popup()
       .setLatLng(event.latlng)
-      .setContent(`
-        <div>
-          <h3 style="color:#000; margin:0 0 10px 0;">${govName}</h3>
-          <p>Total : ${locationsInGov.length}</p>
-          <ul style="padding-left:20px; font-size:13px;">${statsHtml}</ul>
-        </div>
-      `)
+      .setContent(`<div><h3 style="color:#000; margin:0 0 10px 0;">${govName}</h3><p>Total : ${locationsInGov.length}</p><ul style="padding-left:20px; font-size:13px;">${statsHtml}</ul></div>`)
       .openOn(event.target._map);
   }
 
@@ -127,7 +105,6 @@ export class App implements OnInit {
     return layer.getBounds && layer.getBounds().contains(latLng);
   }
 
-  // --- FILTRAGE ET CLUSTERING ---
   onCategoryChange(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
     this.selectedCategory = selectElement.value;
@@ -135,7 +112,7 @@ export class App implements OnInit {
   }
 
   updateMarkers() {
-    // Nettoyage ancien cluster
+    // Nettoyage de l'ancien cluster
     if (this.markerClusterGroup) {
       const index = this.layers.indexOf(this.markerClusterGroup);
       if (index > -1) this.layers.splice(index, 1);
@@ -146,8 +123,10 @@ export class App implements OnInit {
 
     const filtered = this.allLocations.filter(l => l.categorie === this.selectedCategory);
 
-    // Création Cluster
-    this.markerClusterGroup = L.markerClusterGroup({ 
+    // CRÉATION DU CLUSTER AVEC CAST DE SÉCURITÉ
+    // L as any permet d'éviter l'erreur de compilation si les types sont absents
+    // Mais le script JS dans angular.json assure que la fonction existe au runtime.
+    this.markerClusterGroup = (L as any).markerClusterGroup({ 
       maxClusterRadius: 80, 
       disableClusteringAtZoom: 11,
       animate: true,
@@ -167,10 +146,10 @@ export class App implements OnInit {
       }).bindPopup(`<b>${loc.nom}</b><br>${loc.categorie}`);
     });
 
-    this.markerClusterGroup.addLayers(markers);
-    
-    // Force update Angular
-    this.layers = [...this.layers, this.markerClusterGroup];
+    if (this.markerClusterGroup) {
+        this.markerClusterGroup.addLayers(markers);
+        this.layers = [...this.layers, this.markerClusterGroup];
+    }
   }
 
   onMapReady(map: L.Map) {}
