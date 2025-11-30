@@ -5,47 +5,104 @@
   width: 100%;
 }
 
-/* La carte prend tout l'espace */
 .map-container {
   height: 100%;
   width: 100%;
   z-index: 1;
 }
 
-/* Le panneau de filtre flottant */
+/* Filtres */
 .filter-controls {
   position: absolute;
   top: 20px;
   right: 20px;
-  z-index: 1000; /* Très important : au-dessus de la carte */
-  
-  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 1000;
+  background-color: rgba(255, 255, 255, 0.95);
   padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  min-width: 200px;
-  font-family: Arial, sans-serif;
+  gap: 10px;
+  min-width: 220px;
+  backdrop-filter: blur(5px);
 }
 
 .filter-controls label {
-  font-weight: bold;
+  font-weight: 600;
   color: #333;
+  font-size: 0.9rem;
 }
 
 .category-select {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
   font-size: 14px;
   cursor: pointer;
+  outline: none;
+  transition: border-color 0.3s;
+}
+.category-select:focus {
+  border-color: #FF1493;
 }
 
-.count-badge {
-  text-align: right;
-  font-size: 0.8rem;
-  color: #666;
-  margin-top: 5px;
+/* --- STYLES DES CLUSTERS PERSONNALISÉS --- */
+
+/* Base du cercle */
+.custom-cluster {
+  background-clip: padding-box;
+  border-radius: 50%;
+}
+
+.custom-cluster div {
+  width: 36px;
+  height: 36px;
+  margin-left: 2px;
+  margin-top: 2px;
+  text-align: center;
+  border-radius: 50%;
+  font-weight: bold;
+  color: white;
+  font-family: sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  border: 2px solid rgba(255,255,255,0.5);
+  transition: transform 0.2s ease;
+}
+
+.custom-cluster div:hover {
+  transform: scale(1.1);
+}
+
+/* Petit Cluster (< 10) - Rose léger */
+.custom-cluster-small div {
+  background: linear-gradient(135deg, #ff80bf 0%, #ff1493 100%);
+}
+
+/* Moyen Cluster (< 100) - Rose Vif / Violet */
+.custom-cluster-medium div {
+  background: linear-gradient(135deg, #ff1493 0%, #9400d3 100%);
+  width: 42px; /* Un peu plus grand */
+  height: 42px;
+  margin-left: -1px;
+  margin-top: -1px;
+  font-size: 14px;
+}
+
+/* Grand Cluster (> 100) - Violet Sombre / Bleu Nuit */
+.custom-cluster-large div {
+  background: linear-gradient(135deg, #9400d3 0%, #4b0082 100%);
+  width: 50px;
+  height: 50px;
+  margin-left: -5px;
+  margin-top: -5px;
+  font-size: 16px;
+}
+
+/* Animation du chiffre */
+.custom-cluster span {
+  line-height: 1;
 }

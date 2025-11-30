@@ -1,18 +1,12 @@
 /* Import des styles de base Leaflet */
 @import "leaflet/dist/leaflet.css";
 
-/* Import des styles OBLIGATOIRES pour les clusters (sinon ils sont invisibles) */
+/* Import des styles pour les clusters (Nécessaire pour la logique, même si on style par dessus) */
 @import "leaflet.markercluster/dist/MarkerCluster.css";
 @import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
-/* Styles globaux */
 html, body { 
     height: 100%; 
     margin: 0; 
-    font-family: Arial, Helvetica, sans-serif;
-}
-.leaflet-marker-icon.leaflet-interactive, .leaflet-image-layer.leaflet-interactive, .leaflet-pane > svg path.leaflet-interactive, svg.leaflet-image-layer.leaflet-interactive path{
-    font-weight: bold;
-    font-size: 16;
-    color:red;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }

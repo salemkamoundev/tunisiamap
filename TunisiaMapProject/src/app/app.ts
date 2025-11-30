@@ -5,7 +5,7 @@ import { MapDataService, Location } from './services/map-data.service';
 import * as L from 'leaflet';
 import { forkJoin } from 'rxjs';
 
-// On garde l'import pour le typage, mais le chargement réel se fait via angular.json
+// Import important pour que le plugin s'attache à L
 import 'leaflet.markercluster';
 
 @Component({
@@ -20,56 +20,80 @@ export class App implements OnInit {
   categories: string[] = [];
   selectedCategory: string = '';
 
-  // Options de base
+  // Configuration de la carte
   options = {
     layers: [
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution: '&copy; OpenStreetMap contributors'
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
       })
     ],
     zoom: 7,
     center: L.latLng(34.0, 9.0)
   };
 
-  markerClusterGroup: L.MarkerClusterGroup | undefined;
+  // On utilise 'any' pour contourner le typage strict de MarkerClusterGroup qui peut parfois poser problème
+  markerClusterGroup: any; 
   geoJsonLayer: L.GeoJSON | undefined;
   layers: L.Layer[] = [];
 
   constructor(private mapDataService: MapDataService) {}
 
   ngOnInit() {
+    // Fix des icônes par défaut de Leaflet qui disparaissent dans Angular
+    this.fixLeafletIcons();
+
     forkJoin({
       locations: this.mapDataService.getLocations(),
       geoJson: this.mapDataService.getGovernorates()
     }).subscribe({
       next: (data) => {
-        // Gestion des lieux
+        // 1. Gestion des lieux
         if (data.locations && data.locations.length > 0) {
           this.allLocations = data.locations;
+          // Extraction des catégories uniques
           const uniqueCats = new Set(this.allLocations.map(l => l.categorie).filter(c => c));
           this.categories = Array.from(uniqueCats).sort();
+          
+          // Initialisation des clusters avec tous les points au début
+          this.initMarkers(this.allLocations);
         }
-        // Gestion des frontières (Contours Noires)
+
+        // 2. Gestion des frontières (Gouvernorats)
         if (data.geoJson) {
-            this.initGeoJsonLayer(data.geoJson);
+          this.initGeoJsonLayer(data.geoJson);
         }
       },
       error: (err) => console.error('Erreur chargement:', err)
     });
   }
 
-  // Initialisation des contours des gouvernorats
+  fixLeafletIcons() {
+    const iconRetinaUrl = 'assets/marker-icon-2x.png';
+    const iconUrl = 'assets/marker-icon.png';
+    const shadowUrl = 'assets/marker-shadow.png';
+    const iconDefault = L.icon({
+      iconRetinaUrl,
+      iconUrl,
+      shadowUrl,
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      tooltipAnchor: [16, -28],
+      shadowSize: [41, 41]
+    });
+    L.Marker.prototype.options.icon = iconDefault;
+  }
+
   initGeoJsonLayer(geoJsonData: any) {
     this.geoJsonLayer = L.geoJSON(geoJsonData, {
       style: (feature) => ({
-        color: '#000000', weight: 2, opacity: 1, fillColor: '#FF1493', fillOpacity: 0.1
+        color: '#444', weight: 1, opacity: 0.5, fillColor: 'transparent', fillOpacity: 0
       }),
       onEachFeature: (feature, layer) => {
-        layer.on('click', (e) => this.showGovernorateStats(e, feature));
         layer.on('mouseover', (e) => { 
             const l = e.target; 
-            l.setStyle({ weight: 4, fillOpacity: 0.3 }); 
+            l.setStyle({ weight: 3, color: '#FF1493', opacity: 0.8 }); 
         });
         layer.on('mouseout', (e) => { 
             const l = e.target; 
@@ -80,77 +104,72 @@ export class App implements OnInit {
     this.layers.push(this.geoJsonLayer);
   }
 
-  // Popup statistique
-  showGovernorateStats(event: any, feature: any) {
-    const govName = feature.properties.name_fr || feature.properties.name_ar || 'Zone';
-    const locationsInGov = this.allLocations.filter(loc => this.isPointInLayer(loc, event.target));
-    
-    const stats: any = {};
-    locationsInGov.forEach(l => stats[l.categorie] = (stats[l.categorie] || 0) + 1);
-
-    let statsHtml = '';
-    for (const [cat, count] of Object.entries(stats)) {
-      statsHtml += `<li><b>${cat}:</b> ${count}</li>`;
-    }
-    if (locationsInGov.length === 0) statsHtml = '<li>Aucun lieu trouvé</li>';
-
-    L.popup()
-      .setLatLng(event.latlng)
-      .setContent(`<div><h3 style="color:#000; margin:0 0 10px 0;">${govName}</h3><p>Total : ${locationsInGov.length}</p><ul style="padding-left:20px; font-size:13px;">${statsHtml}</ul></div>`)
-      .openOn(event.target._map);
-  }
-
-  isPointInLayer(loc: Location, layer: any): boolean {
-    const latLng = L.latLng(loc.lat, loc.lng);
-    return layer.getBounds && layer.getBounds().contains(latLng);
-  }
-
   onCategoryChange(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
     this.selectedCategory = selectElement.value;
-    this.updateMarkers();
+    
+    if (this.selectedCategory) {
+      const filtered = this.allLocations.filter(l => l.categorie === this.selectedCategory);
+      this.initMarkers(filtered);
+    } else {
+      this.initMarkers(this.allLocations);
+    }
   }
 
-  updateMarkers() {
-    // Nettoyage de l'ancien cluster
+  initMarkers(locations: Location[]) {
+    // Suppression de l'ancien groupe s'il existe
     if (this.markerClusterGroup) {
       const index = this.layers.indexOf(this.markerClusterGroup);
-      if (index > -1) this.layers.splice(index, 1);
-      this.markerClusterGroup.clearLayers();
+      if (index > -1) {
+        this.layers.splice(index, 1);
+        // Force update par réassignation
+        this.layers = [...this.layers];
+      }
     }
-    
-    if (!this.selectedCategory) return;
 
-    const filtered = this.allLocations.filter(l => l.categorie === this.selectedCategory);
-
-    // CRÉATION DU CLUSTER AVEC CAST DE SÉCURITÉ
-    // L as any permet d'éviter l'erreur de compilation si les types sont absents
-    // Mais le script JS dans angular.json assure que la fonction existe au runtime.
-    this.markerClusterGroup = (L as any).markerClusterGroup({ 
-      maxClusterRadius: 80, 
-      disableClusteringAtZoom: 11,
+    // Création du groupe de cluster avec style personnalisé
+    this.markerClusterGroup = (L as any).markerClusterGroup({
+      removeOutsideVisibleBounds: true,
       animate: true,
-      showCoverageOnHover: true,
-      polygonOptions: { color: '#FF1493', weight: 3, opacity: 0.8, fillColor: '#FF1493', fillOpacity: 0.1 }
+      // Fonction pour créer l'icône du cluster (le rond coloré)
+      iconCreateFunction: function (cluster: any) {
+        const childCount = cluster.getChildCount();
+        let c = ' marker-cluster-';
+        if (childCount < 10) {
+          c += 'small';
+        } else if (childCount < 100) {
+          c += 'medium';
+        } else {
+          c += 'large';
+        }
+
+        return new L.DivIcon({ 
+          html: '<div><span>' + childCount + '</span></div>', 
+          className: 'custom-cluster' + c, 
+          iconSize: new L.Point(40, 40) 
+        });
+      }
     });
 
-    const markers = filtered.map(loc => {
-      return L.marker([loc.lat, loc.lng], {
-        icon: L.icon({
-          iconSize: [25, 41],
-          iconAnchor: [13, 41],
-          iconUrl: 'assets/marker-icon.png',
-          shadowUrl: 'assets/marker-shadow.png'
-        }),
-        title: loc.nom
-      }).bindPopup(`<b>${loc.nom}</b><br>${loc.categorie}`);
+    // Création des marqueurs
+    const markers = locations.map(loc => {
+      return L.marker([loc.lat, loc.lng], { title: loc.nom })
+        .bindPopup(`
+          <div style="font-family:sans-serif; text-align:center;">
+            <h4 style="margin:0; color:#FF1493;">${loc.nom}</h4>
+            <span style="background:#eee; padding:2px 6px; border-radius:4px; font-size:12px;">${loc.categorie}</span>
+          </div>
+        `);
     });
 
-    if (this.markerClusterGroup) {
-        this.markerClusterGroup.addLayers(markers);
-        this.layers = [...this.layers, this.markerClusterGroup];
-    }
+    // Ajout des marqueurs au groupe
+    this.markerClusterGroup.addLayers(markers);
+    
+    // Ajout du groupe à la carte
+    this.layers.push(this.markerClusterGroup);
   }
 
-  onMapReady(map: L.Map) {}
+  onMapReady(map: L.Map) {
+    // Ajustement automatique de la vue si nécessaire
+  }
 }
