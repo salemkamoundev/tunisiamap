@@ -1,0 +1,105 @@
+{
+  "pays": "Tunisie",
+  "ministeres": [
+    {
+      "code": "PRIM",
+      "nom": "Présidence du Gouvernement",
+      "adresse": "Place du Gouvernement, La Kasbah, 1020 Tunis, Tunisie",
+      "telephone": "+216 71 565 400",
+      "email": "boc@pm.gov.tn",
+      "site_web": "https://pm.gov.tn",
+      "gps": { "lat": 36.8006, "lng": 10.1674 }
+    },
+    {
+      "code": "INT",
+      "nom": "Ministère de l'Intérieur",
+      "adresse": "Avenue Habib Bourguiba, 1000 Tunis, Tunisie",
+      "telephone": "+216 71 333 000",
+      "email": "boc@interieur.gov.tn",
+      "site_web": "http://www.interieur.gov.tn/fr",
+      "gps": { "lat": 36.8009, "lng": 10.1815 }
+    },
+    {
+      "code": "AE",
+      "nom": "Ministère des Affaires étrangères, de la Migration et des Tunisiens à l'étranger",
+      "adresse": "Avenue de la Ligue des États Arabes, Nord Hilton, 1030 Tunis, Tunisie",
+      "telephone": "+216 71 847 500",
+      "email": "email.dct@diplomatie.gov.tn",
+      "site_web": "https://www.diplomatie.gov.tn",
+      "gps": { "lat": 36.8220, "lng": 10.1650 }
+    },
+    {
+      "code": "FIN",
+      "nom": "Ministère des Finances",
+      "adresse": "Avenue Cheikh Mohamed Fadhel Ben Achour, Immeuble B4, Tour A, Centre Urbain Nord, 1082 Tunis, Tunisie",
+      "telephone": "+216 70 556 600",
+      "email": "brc@finances.tn",
+      "site_web": "https://www.finances.gov.tn",
+      "gps": { "lat": 36.8430, "lng": 10.2050 }
+    },
+    {
+      "code": "EDU",
+      "nom": "Ministère de l'Éducation",
+      "adresse": "Boulevard Bab B'net, 1030 Tunis, Tunisie",
+      "telephone": "+216 71 568 768",
+      "email": "ministere@minedu.edunet.tn",
+      "site_web": "http://www.education.gov.tn",
+      "gps": { "lat": 36.8015, "lng": 10.1685 }
+    },
+    {
+      "code": "SANT",
+      "nom": "Ministère de la Santé",
+      "adresse": "Bab Saadoun, 1006 Tunis, Tunisie",
+      "telephone": "+216 71 577 000",
+      "email": null,
+      "site_web": "https://www.santetunisie.rns.tn",
+      "gps": { "lat": 36.8110, "lng": 10.1570 }
+    },
+    {
+      "code": "SOC",
+      "nom": "Ministère des Affaires sociales",
+      "adresse": "27, Rue Bab Bnet, 1006 Tunis, Tunisie",
+      "telephone": "+216 71 150 000",
+      "email": "mas@social.gov.tn",
+      "site_web": "http://www.social.gov.tn",
+      "gps": { "lat": 36.8005, "lng": 10.1690 }
+    },
+    {
+      "code": "IND",
+      "nom": "Ministère de l'Industrie, de l'Énergie et des Mines",
+      "adresse": "Immeuble Panorama, 40 Avenue du Japon, Montplaisir, 1002 Tunis, Tunisie",
+      "telephone": "+216 71 901 953",
+      "email": "contact@energiemines.gov.tn",
+      "site_web": "https://www.energiemines.gov.tn",
+      "gps": { "lat": 36.8225, "lng": 10.1870 }
+    },
+    {
+      "code": "TIC",
+      "nom": "Ministère des Technologies de la Communication",
+      "adresse": "88, Avenue Mohamed V, Belvédère, 1002 Tunis, Tunisie",
+      "telephone": "+216 70 244 666",
+      "email": "brc.mtc@tunisia.gov.tn",
+      "site_web": "https://www.mtc.gov.tn",
+      "gps": { "lat": 36.8135, "lng": 10.1810 }
+    },
+    {
+      "code": "ENV",
+      "nom": "Ministère de l'Environnement",
+      "adresse": "Boulevard de la Terre, Centre Urbain Nord, 1080 Tunis, Tunisie",
+      "telephone": "+216 70 728 644",
+      "email": "boc@mineat.gov.tn",
+      "site_web": "http://www.environnement.gov.tn",
+      "gps": { "lat": 36.8435, "lng": 10.2055 }
+    },
+    {
+      "code": "TOUR",
+      "nom": "Ministère du Tourisme",
+      "adresse": "1, Avenue Mohamed V, 1001 Tunis, Tunisie",
+      "telephone": "+216 71 120 300",
+      "email": "boc@tourisme.gov.tn",
+      "site_web": "http://www.tourisme.gov.tn",
+      "gps": { "lat": 36.8090, "lng": 10.1845 }
+    }
+  ],
+  "remarque": "Les coordonnées GPS sont approximatives et doivent être vérifiées avec un service de géocodage avant usage en production."
+}

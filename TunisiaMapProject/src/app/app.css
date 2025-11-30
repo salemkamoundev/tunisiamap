@@ -1,0 +1,51 @@
+/* Conteneur principal */
+.map-wrapper {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+}
+
+/* La carte prend tout l'espace */
+.map-container {
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+}
+
+/* Le panneau de filtre flottant */
+.filter-controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000; /* Très important : au-dessus de la carte */
+  
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+  font-family: Arial, sans-serif;
+}
+
+.filter-controls label {
+  font-weight: bold;
+  color: #333;
+}
+
+.category-select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.count-badge {
+  text-align: right;
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 5px;
+}

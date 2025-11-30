@@ -1,0 +1,1102 @@
+[
+  {
+    "Numéro": "5",
+    "COD_GOUV": "32",
+    "LIB_GOUV": "JENDOUBA",
+    "cod_hc": "hc_AIN DRAHAM",
+    "lib_hop": "HOPITAL DE AIN DRAHAM",
+    "adresse": "AIN DRAHAM",
+    "tel": ":(216.8) 655 047",
+    "fax": ":(216.8) 655 148"
+  },
+  {
+    "Numéro": "9",
+    "COD_GOUV": "23",
+    "LIB_GOUV": "BIZERTE",
+    "cod_hc": "hc_s",
+    "lib_hop": "HOPITAL DE SEJNANE",
+    "adresse": "Route de Mateur",
+    "tel": "(216) (72) 469 107",
+    "fax": "(216) (72)"
+  },
+  {
+    "Numéro": "26",
+    "COD_GOUV": "32",
+    "LIB_GOUV": "JENDOUBA",
+    "cod_hc": "hc_FERNANA",
+    "lib_hop": "HOPITAL DE FERNANA",
+    "adresse": "Fernana.",
+    "tel": "(216.08) 641 012",
+    "fax": "(216.08)"
+  },
+  {
+    "Numéro": "30",
+    "COD_GOUV": "31",
+    "LIB_GOUV": "BEJA",
+    "cod_hc": "hc_GUEBELLAT",
+    "lib_hop": "HOPITAL DE GUEBELLAT",
+    "adresse": "Guebellat.",
+    "tel": "(216.08) 457 635",
+    "fax": "(216.08)"
+  },
+  {
+    "Numéro": "35",
+    "COD_GOUV": "21",
+    "LIB_GOUV": "NABEUL",
+    "cod_hc": "hc_HAOUARIA",
+    "lib_hop": "HOPITAL DE HAOUARIA",
+    "adresse": "Rue du Festival - El HAOUARIA - 8045",
+    "tel": "(216.72) 297 054",
+    "fax": "(216.72)"
+  },
+  {
+    "Numéro": "39",
+    "COD_GOUV": "21",
+    "LIB_GOUV": "NABEUL",
+    "cod_hc": "hc_SOLIMAN",
+    "lib_hop": "HOPITAL DE SOLIMAN",
+    "adresse": "Avenue de la République - SOLIMAN - 8020",
+    "tel": "(216.72) 290 255",
+    "fax": "(216.72) 290 795"
+  },
+  {
+    "Numéro": "43",
+    "COD_GOUV": "33",
+    "LIB_GOUV": "KEF",
+    "cod_hc": "hc_SAKIET SIDI YOUSSEF",
+    "lib_hop": "HOPITAL DE SAKIET SIDI YOUSSEF",
+    "adresse": "SAKIET SIDI YOUSSEF",
+    "tel": ":(216.78) 288 250",
+    "fax": "(216.78) 280 211"
+  },
+  {
+    "Numéro": "44",
+    "COD_GOUV": "33",
+    "LIB_GOUV": "KEF",
+    "cod_hc": "hc_TAJEROUINE",
+    "lib_hop": "HOPITAL DE TAJEROUINE",
+    "adresse": "Avenue Habib BOURGUIBA - TAJEROUINE - 7150",
+    "tel": ":(216.78) 287 260",
+    "fax": "(216.78) 287 260"
+  },
+  {
+    "Numéro": "48",
+    "COD_GOUV": "34",
+    "LIB_GOUV": "SELIANA",
+    "cod_hc": "hc_GAAFOUR",
+    "lib_hop": "HOPITAL DE GAAFOUR",
+    "adresse": "GAAFOUR",
+    "tel": "(216.78) 897 010",
+    "fax": "(216.78)897 358"
+  },
+  {
+    "Numéro": "52",
+    "COD_GOUV": "34",
+    "LIB_GOUV": "SELIANA",
+    "cod_hc": "hc_ROUHIA",
+    "lib_hop": "HOPITAL DE ROUHIA",
+    "adresse": "ROUHIA - 6150",
+    "tel": "(216.78) 871 069",
+    "fax": "(216.78)"
+  },
+  {
+    "Numéro": "57",
+    "COD_GOUV": "41",
+    "LIB_GOUV": "KARAOUAN",
+    "cod_hc": "hc_HAJEB EL AYOUN",
+    "lib_hop": "HOPITAL DE HAJEB EL AYOUN",
+    "adresse": "HAJEB EL AYOUN",
+    "tel": "(216.77) 257 004",
+    "fax": "(216.77) 257 004"
+  },
+  {
+    "Numéro": "61",
+    "COD_GOUV": "42",
+    "LIB_GOUV": "KASSERINE",
+    "cod_hc": "hc_FERIANA",
+    "lib_hop": "HOPITAL DE FERIANA",
+    "adresse": "Avenue Habib BOURGUIBA - FERIANA",
+    "tel": "(216.77) 485 335",
+    "fax": "(216.77) 485 011"
+  },
+  {
+    "Numéro": "66",
+    "COD_GOUV": "51",
+    "LIB_GOUV": "SOUSSE",
+    "cod_hc": "hc_ENFIDHA VILLE",
+    "lib_hop": "HOPITAL D'ENFIDHA VILLE",
+    "adresse": "Route de Zaghouan  - ENFIDHA - 4030",
+    "tel": "(216.73) 250 113",
+    "fax": "(216.73) 250 407"
+  },
+  {
+    "Numéro": "70",
+    "COD_GOUV": "51",
+    "LIB_GOUV": "SOUSSE",
+    "cod_hc": "hc_BOUFICHA",
+    "lib_hop": "HOPITAL DE BOUFICHA",
+    "adresse": "",
+    "tel": "(216.73)",
+    "fax": "(216.73)"
+  },
+  {
+    "Numéro": "75",
+    "COD_GOUV": "52",
+    "LIB_GOUV": "MONASTIR",
+    "cod_hc": "hc_OUERDANINE",
+    "lib_hop": "HOPITAL DE OUARDANINE",
+    "adresse": "Avenue Hassen Abdelaziz - OUARDANINE - 5010",
+    "tel": "(2167.73) 465455",
+    "fax": "(216.73)465455"
+  },
+  {
+    "Numéro": "79",
+    "COD_GOUV": "53",
+    "LIB_GOUV": "MAHDIA",
+    "cod_hc": "hc_CHEBBA",
+    "lib_hop": "HOPITAL DE CHEBBA",
+    "adresse": "Avenue Hedi CHAKER - CHEBBA - 5170",
+    "tel": "(216.73) 683 522",
+    "fax": "(216.73) 683 522"
+  },
+  {
+    "Numéro": "83",
+    "COD_GOUV": "53",
+    "LIB_GOUV": "MAHDIA",
+    "cod_hc": "hc_KSOUR ESSAF",
+    "lib_hop": "HOPITAL DE KSOUR ESSAF",
+    "adresse": "Route Salakta - KSOUR ESSEF",
+    "tel": "(216.73) 684 520",
+    "fax": "(216.73) 684 520"
+  },
+  {
+    "Numéro": "84",
+    "COD_GOUV": "53",
+    "LIB_GOUV": "MAHDIA",
+    "cod_hc": "hc_MELLOULECH",
+    "lib_hop": "HOPITAL DE MELLOULECH",
+    "adresse": "MELLOULECH - 5114",
+    "tel": "(216.73) 683 522",
+    "fax": "(216.73) 683 522"
+  },
+  {
+    "Numéro": "88",
+    "COD_GOUV": "53",
+    "LIB_GOUV": "MAHDIA",
+    "cod_hc": "hc_BOUMERDES",
+    "lib_hop": "HOPITAL DE BOUMERDES",
+    "adresse": "",
+    "tel": "(216.73)",
+    "fax": "(216.73)"
+  },
+  {
+    "Numéro": "95",
+    "COD_GOUV": "61",
+    "LIB_GOUV": "SFAX",
+    "cod_hc": "hc_SKHIRA",
+    "lib_hop": "HOPITAL DE SKHIRA",
+    "adresse": "",
+    "tel": "",
+    "fax": ""
+  },
+  {
+    "Numéro": "100",
+    "COD_GOUV": "71",
+    "LIB_GOUV": "GAFSA",
+    "cod_hc": "hc_MDHILLA",
+    "lib_hop": "HOPITAL DE M’DHILLA",
+    "adresse": "M'dhilla 2170",
+    "tel": "(216 76) 266 250",
+    "fax": "(216 76) 266 326"
+  },
+  {
+    "Numéro": "104",
+    "COD_GOUV": "72",
+    "LIB_GOUV": "TOZEUR",
+    "cod_hc": "hc_DEGACHE",
+    "lib_hop": "HOPITAL DE DEGACHE",
+    "adresse": "Degache",
+    "tel": "(216 76)  420 029",
+    "fax": "(216 76)  420 226"
+  },
+  {
+    "Numéro": "109",
+    "COD_GOUV": "43",
+    "LIB_GOUV": "SIDI BOUZID",
+    "cod_hc": "hc_regueb",
+    "lib_hop": "HOPITAL DE REGUEB",
+    "adresse": "Regueb 9170",
+    "tel": "(216 76) 640 008",
+    "fax": "(216 76) 668 079"
+  },
+  {
+    "Numéro": "113",
+    "COD_GOUV": "43",
+    "LIB_GOUV": "SIDI BOUZID",
+    "cod_hc": "hc_mazzouna",
+    "lib_hop": "HOPITAL DE MAZZOUNA",
+    "adresse": "Route Reguen Mazzouna",
+    "tel": "(216 76) 668 433",
+    "fax": "(216 76) 668 079"
+  },
+  {
+    "Numéro": "119",
+    "COD_GOUV": "73",
+    "LIB_GOUV": "KEBILI",
+    "cod_hc": "hc_souk el ahad",
+    "lib_hop": "HOPITAL DE SOUK EL AHAD",
+    "adresse": "",
+    "tel": "",
+    "fax": ""
+  },
+  {
+    "Numéro": "123",
+    "COD_GOUV": "82",
+    "LIB_GOUV": "MEDENINE",
+    "cod_hc": "hc_sidi makhlouf",
+    "lib_hop": "HOPITAL DE SIDI MAKHLOUF",
+    "adresse": "",
+    "tel": "",
+    "fax": ""
+  },
+  {
+    "Numéro": "3",
+    "COD_GOUV": "14",
+    "LIB_GOUV": "MANOUBA",
+    "cod_hc": "hc_t",
+    "lib_hop": "HOPITAL TEBOURBA",
+    "adresse": "Rue Habib THAMEUR 1130 TEBOURBA",
+    "tel": "(216) (71) 530 066",
+    "fax": "(216) (71) 530 066"
+  },
+  {
+    "Numéro": "8",
+    "COD_GOUV": "23",
+    "LIB_GOUV": "BIZERTE",
+    "cod_hc": "hc_rj",
+    "lib_hop": "HOPITAL HASSEN BELKHOUJA DE RAS JEBEL",
+    "adresse": "RAS JEBEL",
+    "tel": "216) (72) 449 299",
+    "fax": "(216) (72)447 121"
+  },
+  {
+    "Numéro": "25",
+    "COD_GOUV": "32",
+    "LIB_GOUV": "JENDOUBA",
+    "cod_hc": "hc_BOU SALEM",
+    "lib_hop": "HOPITAL  DE BOU SALEM",
+    "adresse": "Rue Ibn SINA - BOU SALEM",
+    "tel": "(216.08) 639 109",
+    "fax": "(216.08)"
+  },
+  {
+    "Numéro": "29",
+    "COD_GOUV": "31",
+    "LIB_GOUV": "BEJA",
+    "cod_hc": "hc_AMDOUNE",
+    "lib_hop": "HOPITAL DE AMDOUNE",
+    "adresse": "Amdoune.",
+    "tel": "(216.08) 469 012",
+    "fax": "(216.08)"
+  },
+  {
+    "Numéro": "33",
+    "COD_GOUV": "31",
+    "LIB_GOUV": "BEJA",
+    "cod_hc": "hc_TESTOUR",
+    "lib_hop": "HOPITAL DE TESTOUR",
+    "adresse": "Place de l'hôpital, TESTOUR",
+    "tel": "(216.8) 468 010",
+    "fax": "(216.08)"
+  },
+  {
+    "Numéro": "34",
+    "COD_GOUV": "21",
+    "LIB_GOUV": "NABEUL",
+    "cod_hc": "hc_GROMBALIA",
+    "lib_hop": "HOPITAL DE GROMBALIA",
+    "adresse": "Avenue Farhat HACHED - GROMBALIA",
+    "tel": "(216.72) 255 212",
+    "fax": "(216.72)"
+  },
+  {
+    "Numéro": "38",
+    "COD_GOUV": "21",
+    "LIB_GOUV": "NABEUL",
+    "cod_hc": "hc_KORBA",
+    "lib_hop": "HOPITAL DE KORBA",
+    "adresse": "Rue CHEBBI - KORBA - 8070",
+    "tel": "(216.72) 384 275",
+    "fax": "(216.72) 384 275"
+  },
+  {
+    "Numéro": "42",
+    "COD_GOUV": "33",
+    "LIB_GOUV": "KEF",
+    "cod_hc": "hc_KSOUR",
+    "lib_hop": "HOPITAL D'EL KSOUR",
+    "adresse": "Rue du Président - El KSOUR - 7160",
+    "tel": ":(216.78) 285 100",
+    "fax": "(216.78) 285 362"
+  },
+  {
+    "Numéro": "47",
+    "COD_GOUV": "34",
+    "LIB_GOUV": "SELIANA",
+    "cod_hc": "hc_SIDI BOUROUIS",
+    "lib_hop": "HOPITAL DE SIDI BOUROUIS",
+    "adresse": "Rue 7 Novembre 1987 - SIDI BOUROUIS - 611",
+    "tel": "(216.78) 898 153",
+    "fax": "(216.78)"
+  },
+  {
+    "Numéro": "51",
+    "COD_GOUV": "34",
+    "LIB_GOUV": "SELIANA",
+    "cod_hc": "hc_MAKTHAR",
+    "lib_hop": "HOPITAL DE MAKTHAR",
+    "adresse": "MAKTHAR - 6140",
+    "tel": "(216.78) 876 150",
+    "fax": "(216.78)876 150"
+  },
+  {
+    "Numéro": "56",
+    "COD_GOUV": "41",
+    "LIB_GOUV": "KARAOUAN",
+    "cod_hc": "hc_HAFFOUZ",
+    "lib_hop": "HOPITAL DE HAFFOUZ",
+    "adresse": "10, rue de la république - HAFFOUZ - 3130",
+    "tel": "(216.77) 260 024",
+    "fax": "(216.77) 260 024"
+  },
+  {
+    "Numéro": "60",
+    "COD_GOUV": "41",
+    "LIB_GOUV": "KARAOUAN",
+    "cod_hc": "hc_SBIKHA",
+    "lib_hop": "HOPITAL DE SBIKHA",
+    "adresse": "SBIKHA",
+    "tel": "(216.77) 252 014",
+    "fax": "(216.77)"
+  },
+  {
+    "Numéro": "65",
+    "COD_GOUV": "42",
+    "LIB_GOUV": "KASSERINE",
+    "cod_hc": "hc_FOUSSANA",
+    "lib_hop": "HOPITAL DE FOUSSANA",
+    "adresse": "",
+    "tel": "(216.77)",
+    "fax": "(216.77)"
+  },
+  {
+    "Numéro": "69",
+    "COD_GOUV": "51",
+    "LIB_GOUV": "SOUSSE",
+    "cod_hc": "hc_SIDI BOUALI",
+    "lib_hop": "HOPITAL DE SIDI BOUALI",
+    "adresse": "Avenue de la République - SIDI BOUALI - 4040",
+    "tel": "(216.73) 247 130",
+    "fax": "(216.73) 247 411"
+  },
+  {
+    "Numéro": "73",
+    "COD_GOUV": "52",
+    "LIB_GOUV": "MONASTIR",
+    "cod_hc": "hc_JEMMAL",
+    "lib_hop": "HOPITAL DE JEMMAL",
+    "adresse": "Route de Zeramdine - JEMMAL - 5020",
+    "tel": "(2167.73) 486 066",
+    "fax": "(216.73) 486 016"
+  },
+  {
+    "Numéro": "74",
+    "COD_GOUV": "52",
+    "LIB_GOUV": "MONASTIR",
+    "cod_hc": "hc_KSIBET EL MEDIOUNI",
+    "lib_hop": "HOPITAL DE KSIBET EL MEDIOUNI",
+    "adresse": "KSIBET EL MEDIOUNI",
+    "tel": "(2167.73) 469 568",
+    "fax": "(216.73)"
+  },
+  {
+    "Numéro": "78",
+    "COD_GOUV": "52",
+    "LIB_GOUV": "MONASTIR",
+    "cod_hc": "hc_ZERAMDINE",
+    "lib_hop": "HOPITAL DE ZERAMDINE",
+    "adresse": "Route de Jemmal - ZERAMDINE - 5040",
+    "tel": "(2167.73) 486 066",
+    "fax": "(216.73)486 016"
+  },
+  {
+    "Numéro": "82",
+    "COD_GOUV": "53",
+    "LIB_GOUV": "MAHDIA",
+    "cod_hc": "hc_HBIRA",
+    "lib_hop": "HOPITAL DE HBIRA",
+    "adresse": "HBIRA - 5113",
+    "tel": "(216.73) 609 016",
+    "fax": "(216.73)"
+  },
+  {
+    "Numéro": "87",
+    "COD_GOUV": "53",
+    "LIB_GOUV": "MAHDIA",
+    "cod_hc": "hc_SOUASSI",
+    "lib_hop": "HOPITAL DE SOUASSI",
+    "adresse": "Rue Ibn El JAZZAR - SOUASSI - 5140",
+    "tel": "(216.73) 697 015",
+    "fax": "(216.73) 697 205"
+  },
+  {
+    "Numéro": "91",
+    "COD_GOUV": "52",
+    "LIB_GOUV": "MONASTIR",
+    "cod_hc": "hc_BEMBLA",
+    "lib_hop": "HOPITAL DE BEMBLA",
+    "adresse": "Route de jammel 5021 bembla",
+    "tel": "(216.73) 478 284",
+    "fax": "(216.73)"
+  },
+  {
+    "Numéro": "99",
+    "COD_GOUV": "71",
+    "LIB_GOUV": "GAFSA",
+    "cod_hc": "hc_EL GUETAR",
+    "lib_hop": "HOPITAL DE EL GUETAR",
+    "adresse": "Avenu de L'environnement El Guetar 2180",
+    "tel": "(216 76) 285 013",
+    "fax": "(216 76) 286 292"
+  },
+  {
+    "Numéro": "103",
+    "COD_GOUV": "72",
+    "LIB_GOUV": "TOZEUR",
+    "cod_hc": "hc_NEFTA",
+    "lib_hop": "HOPITAL DE NEFTA",
+    "adresse": "Place de l'independance Nafta",
+    "tel": "(216 76) 430 193",
+    "fax": "(216 76)  430 270"
+  },
+  {
+    "Numéro": "108",
+    "COD_GOUV": "43",
+    "LIB_GOUV": "SIDI BOUZID",
+    "cod_hc": "hc_jelma",
+    "lib_hop": "HOPITAL DE JELMA",
+    "adresse": "Jelma 9110",
+    "tel": "(216 76) 657 070",
+    "fax": "(216 76) 657 356"
+  },
+  {
+    "Numéro": "112",
+    "COD_GOUV": "43",
+    "LIB_GOUV": "SIDI BOUZID",
+    "cod_hc": "hc_meknassy",
+    "lib_hop": "HOPITAL DE MEKNASSY",
+    "adresse": "Rue  Med Ali Aloui Maknassy",
+    "tel": "(216 76) 645 230",
+    "fax": "(216 76) 645 013"
+  },
+  {
+    "Numéro": "116",
+    "COD_GOUV": "81",
+    "LIB_GOUV": "GABES",
+    "cod_hc": "hc_mareth",
+    "lib_hop": "HOPITAL DE MARETH",
+    "adresse": "Av, 27 octobre Mareth",
+    "tel": "(216 75) 321 160",
+    "fax": "(216 75) 321 192"
+  },
+  {
+    "Numéro": "118",
+    "COD_GOUV": "73",
+    "LIB_GOUV": "KEBILI",
+    "cod_hc": "hc_douz",
+    "lib_hop": "HOPITAL DE DOUZ",
+    "adresse": "",
+    "tel": "",
+    "fax": ""
+  },
+  {
+    "Numéro": "122",
+    "COD_GOUV": "82",
+    "LIB_GOUV": "MEDENINE",
+    "cod_hc": "hc_beni khedache",
+    "lib_hop": "HOPITAL DE BENI KHEDECHE",
+    "adresse": "",
+    "tel": "",
+    "fax": ""
+  },
+  {
+    "Numéro": "126",
+    "COD_GOUV": "51",
+    "LIB_GOUV": "SOUSSE",
+    "cod_hc": "hc_kalaa sghira",
+    "lib_hop": "HOPITAL DE KALAA SGHIRA",
+    "adresse": "RUE IBN AL JAZZAR  KALAA SGHIRA",
+    "tel": "73 249 411",
+    "fax": "73 249 830"
+  },
+  {
+    "Numéro": "128",
+    "COD_GOUV": "81",
+    "LIB_GOUV": "GABES",
+    "cod_hc": "hc_ELHAMMA",
+    "lib_hop": "HOPITAL EL HAMMA",
+    "adresse": "Route de Gabes El Hamma",
+    "tel": "(216 75) 331 140",
+    "fax": "(216 75) 330 233"
+  },
+  {
+    "Numéro": "2",
+    "COD_GOUV": "12",
+    "LIB_GOUV": "ARIANA",
+    "cod_hc": "hc_dh",
+    "lib_hop": "HOPITAL  ETTADHAMEN",
+    "adresse": "Daouar Hicher",
+    "tel": "(216) (71)  520 880",
+    "fax": "(216) (71)"
+  },
+  {
+    "Numéro": "7",
+    "COD_GOUV": "23",
+    "LIB_GOUV": "BIZERTE",
+    "cod_hc": "hc_m",
+    "lib_hop": "HOPITAL DE MATEUR",
+    "adresse": "Route de Tabarka - MATEUR",
+    "tel": "216) (72) 465 277",
+    "fax": "(216) (72)465 277"
+  },
+  {
+    "Numéro": "11",
+    "COD_GOUV": "22",
+    "LIB_GOUV": "ZAGHOUAN",
+    "cod_hc": "hc_FAHS",
+    "lib_hop": "HOPITAL DU FAHS",
+    "adresse": "10, rue de Tunis - FAHS - 1140",
+    "tel": "(216.72) 670 480",
+    "fax": "(216.72) 670 302"
+  },
+  {
+    "Numéro": "12",
+    "COD_GOUV": "22",
+    "LIB_GOUV": "ZAGHOUAN",
+    "cod_hc": "hc_ENNADHOUR",
+    "lib_hop": "HOPITAL ENNADHOUR",
+    "adresse": "Circonscription Ennadhour, ZAGHOUAN",
+    "tel": "(216.72) 678 513",
+    "fax": "(216.72) 678 513"
+  },
+  {
+    "Numéro": "28",
+    "COD_GOUV": "32",
+    "LIB_GOUV": "JENDOUBA",
+    "cod_hc": "hc_TABARKA",
+    "lib_hop": "HOPITAL DE TABARKA",
+    "adresse": "TABARKA - 8110 \n- 8160",
+    "tel": "(216.08) 643 653",
+    "fax": "(216.08)671  865"
+  },
+  {
+    "Numéro": "32",
+    "COD_GOUV": "31",
+    "LIB_GOUV": "BEJA",
+    "cod_hc": "hc_TEBOURSOUK",
+    "lib_hop": "HOPITAL DE TEBOURSOUK",
+    "adresse": "Teboursouk.",
+    "tel": "(216.08) 465 355",
+    "fax": "(216.08)"
+  },
+  {
+    "Numéro": "37",
+    "COD_GOUV": "21",
+    "LIB_GOUV": "NABEUL",
+    "cod_hc": "hc_MENZEL BOUZELFA",
+    "lib_hop": "HOPITAL FATTOUMA LIMAM MENZEL BOUZELFA",
+    "adresse": "Rue Mongi Slim - MENZEL BOUZELFA - 8010",
+    "tel": "(216.72) 292 091",
+    "fax": "(216.72) 292 593"
+  },
+  {
+    "Numéro": "41",
+    "COD_GOUV": "33",
+    "LIB_GOUV": "KEF",
+    "cod_hc": "hc_DAHMANI",
+    "lib_hop": "HOPITAL DE DAHMANI",
+    "adresse": "Rue Sidi Mansour - DAHMANI - 7170",
+    "tel": ":(216.78) 280 211",
+    "fax": "(216.78) 280 211"
+  },
+  {
+    "Numéro": "46",
+    "COD_GOUV": "34",
+    "LIB_GOUV": "SELIANA",
+    "cod_hc": "hc_BOUARADA",
+    "lib_hop": "HOPITAL DE BOUARADA",
+    "adresse": "BOUARADA",
+    "tel": "(216.78) 897 010",
+    "fax": "(216.78)897 358"
+  },
+  {
+    "Numéro": "50",
+    "COD_GOUV": "34",
+    "LIB_GOUV": "SELIANA",
+    "cod_hc": "hc_KESRA",
+    "lib_hop": "HOPITAL DE KESRA",
+    "adresse": "KESRA - 6114",
+    "tel": "(216.78) 871 396",
+    "fax": "(216.78)"
+  },
+  {
+    "Numéro": "55",
+    "COD_GOUV": "41",
+    "LIB_GOUV": "KARAOUAN",
+    "cod_hc": "hc_EL ALA",
+    "lib_hop": "HOPITAL D'EL ALA",
+    "adresse": "Rue 7 Novembre 1987 - EL ALA",
+    "tel": "(216.77) 255 145",
+    "fax": "(216.77) 255 145"
+  },
+  {
+    "Numéro": "59",
+    "COD_GOUV": "41",
+    "LIB_GOUV": "KARAOUAN",
+    "cod_hc": "hc_OUESLATIA",
+    "lib_hop": "HOPITAL DE OUESLATIA",
+    "adresse": "Rue 3 Aout Oueslatia",
+    "tel": "(216.77) 255 145",
+    "fax": "(216.77) 255 145"
+  },
+  {
+    "Numéro": "63",
+    "COD_GOUV": "42",
+    "LIB_GOUV": "KASSERINE",
+    "cod_hc": "hc_SBIBA",
+    "lib_hop": "HOPITAL DE SBIBA",
+    "adresse": "SBIBA.",
+    "tel": "(216.77) 488 009",
+    "fax": "(216.77)"
+  },
+  {
+    "Numéro": "64",
+    "COD_GOUV": "42",
+    "LIB_GOUV": "KASSERINE",
+    "cod_hc": "hc_THALA",
+    "lib_hop": "HOPITAL DE THALA",
+    "adresse": "Avenue Habib BOURGUIBA - THALA",
+    "tel": "(216.77) 480 022",
+    "fax": "(216.77) 480 363"
+  },
+  {
+    "Numéro": "68",
+    "COD_GOUV": "51",
+    "LIB_GOUV": "SOUSSE",
+    "cod_hc": "hc_KALAA KEBIRA",
+    "lib_hop": "HOPITAL KALAA KEBIRA",
+    "adresse": "Kalaa Kébira, Sousse.",
+    "tel": "(216.73) 236 133",
+    "fax": "(216.73)"
+  },
+  {
+    "Numéro": "72",
+    "COD_GOUV": "52",
+    "LIB_GOUV": "MONASTIR",
+    "cod_hc": "hc_BOUHJAR",
+    "lib_hop": "HOPITAL DE BOUHJAR",
+    "adresse": "BOUHJAR",
+    "tel": "(2167.73) 472 892",
+    "fax": "(216.73)472 892"
+  },
+  {
+    "Numéro": "77",
+    "COD_GOUV": "52",
+    "LIB_GOUV": "MONASTIR",
+    "cod_hc": "hc_TEBOULBA",
+    "lib_hop": "HOPITAL TEBOULBA",
+    "adresse": "Avenue Farhat HACHED -  TEBOULBA - 5080",
+    "tel": "(2167.73) 479444",
+    "fax": "(216.73)"
+  },
+  {
+    "Numéro": "81",
+    "COD_GOUV": "53",
+    "LIB_GOUV": "MAHDIA",
+    "cod_hc": "hc_EL JEM",
+    "lib_hop": "HOPITAL DE D'EL JEM",
+    "adresse": "EL JEM - 5160",
+    "tel": "(216.73) 690 156",
+    "fax": "(216.73) 690 156"
+  },
+  {
+    "Numéro": "86",
+    "COD_GOUV": "53",
+    "LIB_GOUV": "MAHDIA",
+    "cod_hc": "hc_SIDI ALOUANE",
+    "lib_hop": "HOPITAL DE SIDI ALOUANE",
+    "adresse": "Avenue  Habib BOURGUIBA - SIDI ALOUANE",
+    "tel": "(216.73) 684 520",
+    "fax": "(216.73) 684 520"
+  },
+  {
+    "Numéro": "90",
+    "COD_GOUV": "42",
+    "LIB_GOUV": "KASSERINE",
+    "cod_hc": "hc_MAJEL BELABBES",
+    "lib_hop": "HOPITAL DE MAJEL BELABBES",
+    "adresse": "",
+    "tel": "(216.77)",
+    "fax": "(216.77)"
+  },
+  {
+    "Numéro": "98",
+    "COD_GOUV": "71",
+    "LIB_GOUV": "GAFSA",
+    "cod_hc": "hc_SENED",
+    "lib_hop": "HOPITAL DE SENED",
+    "adresse": "SNED",
+    "tel": "(216 76) 290 044",
+    "fax": "(216 76) 290 131"
+  },
+  {
+    "Numéro": "102",
+    "COD_GOUV": "71",
+    "LIB_GOUV": "GAFSA",
+    "cod_hc": "hc_REDEYFE",
+    "lib_hop": "HOPITAL DE REDEYFE",
+    "adresse": "Redeyfe",
+    "tel": "(216 76)  260 801 250 011",
+    "fax": "(216 76)  252 110"
+  },
+  {
+    "Numéro": "106",
+    "COD_GOUV": "72",
+    "LIB_GOUV": "TOZEUR",
+    "cod_hc": "hc_TAMEGHZA",
+    "lib_hop": "HOPITAL DE TAMEGHZA",
+    "adresse": "Tameghza",
+    "tel": "(216 76)  485 376",
+    "fax": "(216 76) 485 376"
+  },
+  {
+    "Numéro": "107",
+    "COD_GOUV": "43",
+    "LIB_GOUV": "SIDI BOUZID",
+    "cod_hc": "hc_OULED HAFFOUZ",
+    "lib_hop": "HOPITAL DE OULED HAFFOUZ",
+    "adresse": "OULED HAFFOUZ",
+    "tel": "(216 76) 678 119",
+    "fax": "(216 76) 678 210"
+  },
+  {
+    "Numéro": "111",
+    "COD_GOUV": "43",
+    "LIB_GOUV": "SIDI BOUZID",
+    "cod_hc": "hc_menzel bouzaiene",
+    "lib_hop": "HOPITAL DE  MENZEL BOUZAIENE",
+    "adresse": "Cité Houcine Bouraienne Menzel bouzaienne",
+    "tel": "(216 76) 672 054",
+    "fax": "(216 76)"
+  },
+  {
+    "Numéro": "115",
+    "COD_GOUV": "81",
+    "LIB_GOUV": "GABES",
+    "cod_hc": "hc_ouedhref",
+    "lib_hop": "HOPITAL DE OUEDHREF",
+    "adresse": "Cité Ezdihar 6052",
+    "tel": "(216 75) 365 388",
+    "fax": "(216 75) 365 388"
+  },
+  {
+    "Numéro": "117",
+    "COD_GOUV": "81",
+    "LIB_GOUV": "GABES",
+    "cod_hc": "hc_matmata",
+    "lib_hop": "HOPITAL DE MATMATA",
+    "adresse": "Av,habib Bourguiba route beni zolten Matmata nouvelle",
+    "tel": "(216 75) 230 503",
+    "fax": "(216 75) 230 866"
+  },
+  {
+    "Numéro": "121",
+    "COD_GOUV": "82",
+    "LIB_GOUV": "MEDENINE",
+    "cod_hc": "hc_midoun",
+    "lib_hop": "HOPITAL DE MIDOUN",
+    "adresse": "",
+    "tel": "",
+    "fax": ""
+  },
+  {
+    "Numéro": "125",
+    "COD_GOUV": "83",
+    "LIB_GOUV": "TATAOUINE",
+    "cod_hc": "hc_remada",
+    "lib_hop": "HOPITAL  DE REMADA",
+    "adresse": "",
+    "tel": "",
+    "fax": ""
+  },
+  {
+    "Numéro": "6",
+    "COD_GOUV": "23",
+    "LIB_GOUV": "BIZERTE",
+    "cod_hc": "hc_e",
+    "lib_hop": "HOPITAL  EL ALIA",
+    "adresse": "Rue Docteur MATRI - 7016 EL ALIA",
+    "tel": "(216) (72) 442 788",
+    "fax": "(216) (72) 442 788"
+  },
+  {
+    "Numéro": "10",
+    "COD_GOUV": "21",
+    "LIB_GOUV": "NABEUL",
+    "cod_hc": "hc_BENI KHALLED",
+    "lib_hop": "HOPITAL DE BENI KHALLED",
+    "adresse": "Avenue 7 Novembre - BENI KHALLED - 8023",
+    "tel": "(216.72) 251 804",
+    "fax": "(216.72)"
+  },
+  {
+    "Numéro": "27",
+    "COD_GOUV": "32",
+    "LIB_GOUV": "JENDOUBA",
+    "cod_hc": "hc_GHARDIMAOU",
+    "lib_hop": "HOPITAL DE GHARDIMAOU",
+    "adresse": "Rue Habib THAMEUR - GHARDIMAOU - 8160",
+    "tel": "(216.08) 660 013",
+    "fax": "(216.08)"
+  },
+  {
+    "Numéro": "31",
+    "COD_GOUV": "31",
+    "LIB_GOUV": "BEJA",
+    "cod_hc": "hc_NEFZA",
+    "lib_hop": "HOPITAL DE NEFZA",
+    "adresse": "Avenue Habib BOURGUIBA NEFZA",
+    "tel": "(216.08) 470 259",
+    "fax": "(216.08) 470 259"
+  },
+  {
+    "Numéro": "36",
+    "COD_GOUV": "21",
+    "LIB_GOUV": "NABEUL",
+    "cod_hc": "hc_KELIBIA",
+    "lib_hop": "HOPITAL DE KELIBIA",
+    "adresse": "Avenue Ali BELHAOUENE - KELIBIA - 8059",
+    "tel": "216.72) 296 190",
+    "fax": "(216.72) 296 268"
+  },
+  {
+    "Numéro": "40",
+    "COD_GOUV": "21",
+    "LIB_GOUV": "NABEUL",
+    "cod_hc": "hc_HAMMAMET",
+    "lib_hop": "HOPITAL HAMMAMET",
+    "adresse": "Hôpital Mohamed Tahar Maamouri - Nabeul- 8000",
+    "tel": "(216.72) 287 972",
+    "fax": "(216.72) 286 180"
+  },
+  {
+    "Numéro": "45",
+    "COD_GOUV": "34",
+    "LIB_GOUV": "SELIANA",
+    "cod_hc": "hc_BARGOU",
+    "lib_hop": "HOPITAL DE BARGOU",
+    "adresse": "Route de Tunis -BARGOU",
+    "tel": "(216.78) 870 372",
+    "fax": "(216.78)"
+  },
+  {
+    "Numéro": "49",
+    "COD_GOUV": "34",
+    "LIB_GOUV": "SELIANA",
+    "cod_hc": "hc_KRIB",
+    "lib_hop": "HOPITAL DE KRIB",
+    "adresse": "Rue de l'Environnement - Le KRIB - 6120",
+    "tel": "(216.78)  891 225",
+    "fax": "(216.78)891 225"
+  },
+  {
+    "Numéro": "53",
+    "COD_GOUV": "41",
+    "LIB_GOUV": "KARAOUAN",
+    "cod_hc": "hc_BOUHAJLA",
+    "lib_hop": "HOPITAL DE BOUHAJLA",
+    "adresse": "BOUHAJLA",
+    "tel": "(216.77) 260 024",
+    "fax": "(216.77) 260 024"
+  },
+  {
+    "Numéro": "54",
+    "COD_GOUV": "41",
+    "LIB_GOUV": "KARAOUAN",
+    "cod_hc": "hc_CHEBIKA",
+    "lib_hop": "HOPITAL DE CHEBIKA",
+    "adresse": "CHEBIKA",
+    "tel": "(216.77) 257 004",
+    "fax": "(216.77) 257 004"
+  },
+  {
+    "Numéro": "58",
+    "COD_GOUV": "41",
+    "LIB_GOUV": "KARAOUAN",
+    "cod_hc": "hc_NASRALLAH",
+    "lib_hop": "HOPITAL DE NASRALLAH",
+    "adresse": "NASRALLAH - 3170",
+    "tel": "(216.77) 260 024",
+    "fax": "(216.77) 260 024"
+  },
+  {
+    "Numéro": "62",
+    "COD_GOUV": "42",
+    "LIB_GOUV": "KASSERINE",
+    "cod_hc": "hc_SBEITLA",
+    "lib_hop": "HOPITAL DE SBEITLA",
+    "adresse": "SBEITLA - 1250",
+    "tel": "(216.77) 465 088",
+    "fax": "(216.77) 465 711"
+  },
+  {
+    "Numéro": "67",
+    "COD_GOUV": "51",
+    "LIB_GOUV": "SOUSSE",
+    "cod_hc": "hc_KALAA KEBIRA1",
+    "lib_hop": "HOPITAL HABIB BAYAR DE KALAA KEBIRA",
+    "adresse": "Rue 1er Juin - KALAA KEBIRA - 4060",
+    "tel": "(216.73) 253 053",
+    "fax": "(216.73) 253 811"
+  },
+  {
+    "Numéro": "71",
+    "COD_GOUV": "52",
+    "LIB_GOUV": "MONASTIR",
+    "cod_hc": "hc_BEKALTA",
+    "lib_hop": "HOPITAL BEKALTA",
+    "adresse": "Avenue Habib BOURGUIBA - BEKALTA - 5090",
+    "tel": "(2167.73) 477 260",
+    "fax": "(216.73)"
+  },
+  {
+    "Numéro": "76",
+    "COD_GOUV": "52",
+    "LIB_GOUV": "MONASTIR",
+    "cod_hc": "hc_SAHLINE",
+    "lib_hop": "HOPITAL DE SAHLINE",
+    "adresse": "SAHLINE - 5012",
+    "tel": "(2167.73) 466 015",
+    "fax": "(216.73)"
+  },
+  {
+    "Numéro": "80",
+    "COD_GOUV": "53",
+    "LIB_GOUV": "MAHDIA",
+    "cod_hc": "hc_CHORBANE",
+    "lib_hop": "HOPITAL DE CHORBANE",
+    "adresse": "CHORBANE - 5130",
+    "tel": "(216.73) 698 070",
+    "fax": "(216.73) 698 070"
+  },
+  {
+    "Numéro": "85",
+    "COD_GOUV": "53",
+    "LIB_GOUV": "MAHDIA",
+    "cod_hc": "hc_OULED CHAMEKH",
+    "lib_hop": "HOPITAL DE OULED CHAMEKH",
+    "adresse": "Ouled Chamekh - 5120",
+    "tel": "(216.73) 619 015",
+    "fax": "(216.73)"
+  },
+  {
+    "Numéro": "89",
+    "COD_GOUV": "33",
+    "LIB_GOUV": "KEF",
+    "cod_hc": "hc_NEBER",
+    "lib_hop": "HOPITAL DE NEBER",
+    "adresse": "NEBER - 7170",
+    "tel": "(216.78)",
+    "fax": "(216.78)"
+  },
+  {
+    "Numéro": "96",
+    "COD_GOUV": "61",
+    "LIB_GOUV": "SFAX",
+    "cod_hc": "hc_BIR ALI BEN KHLIFA",
+    "lib_hop": "HOPITAL DE BIR ALI BEN KHLIFA",
+    "adresse": "",
+    "tel": "",
+    "fax": ""
+  },
+  {
+    "Numéro": "97",
+    "COD_GOUV": "71",
+    "LIB_GOUV": "GAFSA",
+    "cod_hc": "hc_BELKHIR",
+    "lib_hop": "HOPITAL DE  BELKHIR",
+    "adresse": "Route de Gabes Belkhir 2115",
+    "tel": "(216 76) 297 388",
+    "fax": "(216.76) 297 256"
+  },
+  {
+    "Numéro": "101",
+    "COD_GOUV": "71",
+    "LIB_GOUV": "GAFSA",
+    "cod_hc": "hc_MOULARES",
+    "lib_hop": "HOPITAL DE MOULARES",
+    "adresse": "Cité moderne Moulares",
+    "tel": "(216 76) 260 801/ 260 611",
+    "fax": "(216 76)260 801"
+  },
+  {
+    "Numéro": "105",
+    "COD_GOUV": "72",
+    "LIB_GOUV": "TOZEUR",
+    "cod_hc": "hc_HAZOUA",
+    "lib_hop": "HOPITAL DE HAZOUA",
+    "adresse": "Hazoua 2223",
+    "tel": "(216 76) 440 166",
+    "fax": "(216 76)"
+  },
+  {
+    "Numéro": "110",
+    "COD_GOUV": "43",
+    "LIB_GOUV": "SIDI BOUZID",
+    "cod_hc": "hc_bir el hafey",
+    "lib_hop": "HOPITAL DE  BIR EL HAFEY",
+    "adresse": "Bir el hafey",
+    "tel": "(216 76) 677 212",
+    "fax": "(216 76)"
+  },
+  {
+    "Numéro": "114",
+    "COD_GOUV": "43",
+    "LIB_GOUV": "SIDI BOUZID",
+    "cod_hc": "hc_ben aoun",
+    "lib_hop": "HOPITAL DE BEN AOUN",
+    "adresse": "Ben aoun",
+    "tel": "(216 76) 660 202",
+    "fax": "(216 76) 660 416"
+  },
+  {
+    "Numéro": "120",
+    "COD_GOUV": "73",
+    "LIB_GOUV": "KEBILI",
+    "cod_hc": "hc_faouar",
+    "lib_hop": "HOPITAL DE FAOUAR",
+    "adresse": "",
+    "tel": "",
+    "fax": ""
+  },
+  {
+    "Numéro": "124",
+    "COD_GOUV": "83",
+    "LIB_GOUV": "TATAOUINE",
+    "cod_hc": "hc_ghomrassen",
+    "lib_hop": "HOPITAL DE GHOMRASSEN",
+    "adresse": "",
+    "tel": "",
+    "fax": ""
+  }
+]

@@ -1,0 +1,26 @@
+<div class="map-wrapper">
+  
+  <div class="filter-controls">
+    <label>Choisissez une catégorie :</label>
+    <select (change)="onCategoryChange($event)" class="category-select">
+      <option value="" selected disabled>-- Cliquez pour choisir --</option>
+      
+      <option *ngFor="let cat of categories" [value]="cat">
+        {{ cat }}
+      </option>
+    </select>
+    
+    <div class="count-badge" *ngIf="layers.length > 0">
+      {{ layers.length }} résultats affichés
+    </div>
+  </div>
+
+  <div
+    class="map-container"
+    leaflet
+    [leafletOptions]="options"
+    [leafletLayers]="layers"
+    (leafletMapReady)="onMapReady($event)">
+  </div>
+
+</div>

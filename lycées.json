@@ -1,0 +1,142 @@
+{
+  "pays": "Tunisie",
+  "type": "Lycées (secondaire)",
+  "ministere": {
+    "nom": "Ministère de l'Éducation",
+    "site": "http://www.education.gov.tn",
+    "dataset_gps_complet": "https://catalog.data.gov.tn/fr/dataset/liste-des-coordonnees-gps-relatives-aux-etablissements-scolaires"
+  },
+  "total_estime": ">2000",
+  "sources": ["edunet.tn", "ecoles.com.tn", "data.gov.tn", "commune-tunis.gov.tn"],
+  "lycees": [
+    {
+      "nom": "Lycée Pilote Bourguiba",
+      "ville": "Tunis",
+      "adresse": "Avenue de Paris, Tunis",
+      "telephone": "+216 71 338 105",
+      "type": "Public",
+      "gps": { "lat": 36.8340, "lng": 10.1650 }
+    },
+    {
+      "nom": "Lycée Pierre Mendes France",
+      "ville": "Tunis",
+      "adresse": "9 Rue Pierre Mendes France, Cité Mahrajene, Mutuelleville, 1082 Tunis",
+      "telephone": "+216 71 781 719",
+      "type": "Public",
+      "gps": { "lat": 36.8337, "lng": 10.1747 }
+    },
+    {
+      "nom": "Lycée Rue de Russie",
+      "ville": "Tunis",
+      "adresse": "13 Rue de Russie, Tunis",
+      "telephone": "+216 71 326 331",
+      "type": "Public",
+      "gps": { "lat": 36.8100, "lng": 10.1700 }
+    },
+    {
+      "nom": "Lycée Ibn Khaldoun",
+      "ville": "Tunis",
+      "adresse": "Cité Ibn Khaldoun, Tunis",
+      "telephone": "+216 71 924 161",
+      "type": "Public",
+      "gps": { "lat": 36.8500, "lng": 10.2100 }
+    },
+    {
+      "nom": "Lycée Aboul Kacem Chebbi",
+      "ville": "Tunis",
+      "adresse": "Omrane, Tunis",
+      "telephone": "+216 71 892 059",
+      "type": "Public",
+      "gps": { "lat": 36.8300, "lng": 10.2000 }
+    },
+    {
+      "nom": "Lycée Al Aloui",
+      "ville": "Tunis",
+      "adresse": "2 Rue Tahar Haddad, Tunis",
+      "telephone": "+216 71 253 408",
+      "type": "Public",
+      "gps": { "lat": 36.8000, "lng": 10.1800 }
+    },
+    {
+      "nom": "Lycée Avicenne",
+      "ville": "Tunis",
+      "adresse": "Cité Avicenne, Tunis",
+      "telephone": "+216 71 370 855",
+      "type": "Public",
+      "gps": { "lat": 36.8200, "lng": 10.1900 }
+    },
+    {
+      "nom": "Lycée Bab El Khadra",
+      "ville": "Tunis",
+      "adresse": "1 Av. Tahar Sfar, Bab Khadra, Tunis",
+      "telephone": "+216 71 784 808",
+      "type": "Public",
+      "gps": { "lat": 36.8050, "lng": 10.1750 }
+    },
+    {
+      "nom": "Lycée El Omrane",
+      "ville": "Tunis",
+      "adresse": "Le Belvédère, 1002 Tunis",
+      "telephone": "+216 71 848 578",
+      "type": "Public",
+      "gps": { "lat": 36.8150, "lng": 10.1550 }
+    },
+    {
+      "nom": "Lycée Sadiki",
+      "ville": "Tunis",
+      "adresse": "Rue Sinan Pacha, Tunis",
+      "telephone": "+216 71 560 049",
+      "type": "Public",
+      "gps": { "lat": 36.8070, "lng": 10.1720 }
+    },
+    {
+      "nom": "Lycée Privé Al Hussein",
+      "ville": "Tunis",
+      "adresse": "215 Rue El Marr, Tunis",
+      "telephone": "+216 71 570 938",
+      "type": "Privé",
+      "gps": { "lat": 36.8100, "lng": 10.1850 }
+    },
+    {
+      "nom": "Lycée Pasteur (Français)",
+      "ville": "Tunis",
+      "adresse": "4 Avenue Louis Braille, 1002 Tunis",
+      "telephone": "+216 71 282 609",
+      "type": "International",
+      "gps": { "lat": 36.8350, "lng": 10.1600 }
+    },
+    {
+      "nom": "Lycée Farhat Hached",
+      "ville": "Bizerte",
+      "adresse": "Avenue Farhat Hached, 7000 Bizerte",
+      "telephone": "+216 50 791 558",
+      "type": "Public",
+      "gps": { "lat": 37.2740, "lng": 9.8730 }
+    },
+    {
+      "nom": "Lycée Sousse Centre",
+      "ville": "Sousse",
+      "adresse": "Avenue Habib Bourguiba, Sousse",
+      "telephone": "+216 73 225 000",
+      "type": "Public",
+      "gps": { "lat": 35.8250, "lng": 10.6370 }
+    },
+    {
+      "nom": "Lycée Monastir Habib Bourguiba",
+      "ville": "Monastir",
+      "adresse": "Monastir Centre",
+      "telephone": "+216 73 501 234",
+      "type": "Public",
+      "gps": { "lat": 35.7700, "lng": 10.8300 }
+    },
+    {
+      "nom": "Lycée Sfax El Jadida",
+      "ville": "Sfax",
+      "adresse": "Avenue Habib Bourguiba, Sfax",
+      "telephone": "+216 74 296 789",
+      "type": "Public",
+      "gps": { "lat": 34.7400, "lng": 10.4550 }
+    }
+  ],
+  "remarque": "GPS officiels via data.gov.tn (XLS téléchargeable). Liste partielle ; pour Kerkennah/Sfax, filtre le dataset complet par gouvernorat."
+}
