@@ -1,0 +1,89 @@
+{
+  "metadata": {
+    "source": "Fichiers HTML fournis (Annuaire RNU)",
+    "date_extraction": "2025-12-01",
+    "total_universites": 10
+  },
+  "universites": [
+    {
+      "id": "1",
+      "nom": "Université de Tunis",
+      "gouvernorat": "Tunis",
+      "adresse": "92, Boulevard 9 Avril 1938 - 1007 Tunis",
+      "contact": { "tel": "71 261 272", "fax": "71 560 633", "email": "universite.tunis@utunis.rnu.tn", "site_web": "http://www.utunis.rnu.tn/" },
+      "etablissements": []
+    },
+    {
+      "id": "2",
+      "nom": "Université de Tunis el Manar",
+      "gouvernorat": "Tunis",
+      "adresse": "Campus Universitaire Farhat Hached B.P. n° 94 - ROMMANA 1068 Tunis",
+      "contact": { "tel": "71.873.366", "fax": "71.872.055", "email": "utm@utm.tn", "site_web": "http://www.utm.rnu.tn/" },
+      "etablissements": []
+    },
+    {
+      "id": "3",
+      "nom": "Université de Carthage",
+      "gouvernorat": "Tunis",
+      "adresse": "Avenue de la République - B.P. 77 - 1054 Amilcar",
+      "contact": { "tel": "71 749 100", "fax": "71 748 910", "email": "", "site_web": "http://www.ucar.rnu.tn/" },
+      "etablissements": []
+    },
+    {
+      "id": "4",
+      "nom": "Université de Jendouba",
+      "gouvernorat": "Jendouba",
+      "adresse": "Avenue de l'environnement - 8100 Jendouba",
+      "contact": { "tel": "78 611 300", "fax": "78 611 299", "email": "", "site_web": "http://www.uj.rnu.tn/" },
+      "etablissements": []
+    },
+    {
+      "id": "5",
+      "nom": "Université de Gabès",
+      "gouvernorat": "Gabès",
+      "adresse": "Rue Omar Ibn Khattab 6029 Gabès",
+      "contact": { "tel": "75 394 800", "fax": "75 393 500", "email": "univgb@univgb.rnu.tn", "site_web": "http://www.univgb.rnu.tn/" },
+      "etablissements": []
+    },
+    {
+      "id": "6",
+      "nom": "Université de Sousse",
+      "gouvernorat": "Sousse",
+      "adresse": "Rue Khalifa El Karoui Sahloul - BP n° 526 – 4002 Sousse",
+      "contact": { "tel": "73 368 000", "fax": "73 368 126", "email": "", "site_web": "http://www.uc.rnu.tn/" },
+      "etablissements": []
+    },
+    {
+      "id": "7",
+      "nom": "Université de Monastir",
+      "gouvernorat": "Monastir",
+      "adresse": "Avenue Taher Hadded B.P 56 Monastir 5000 Tunisie",
+      "contact": { "tel": "73 462853", "fax": "73 462867", "email": "um@um.rnu.tn", "site_web": "http://www.um.rnu.tn/" },
+      "etablissements": []
+    },
+    {
+      "id": "8",
+      "nom": "Université de Sfax",
+      "gouvernorat": "Sfax",
+      "adresse": "Route de l'aéroport km 0.5 BP 1169 - 3029 Sfax",
+      "contact": { "tel": "74 244 423", "fax": "74 240 913", "email": "universite.sfax@usf.tn", "site_web": "http://univ-sfax.tn/" },
+      "etablissements": []
+    },
+    {
+      "id": "9",
+      "nom": "Université Ez-Zitouna",
+      "gouvernorat": "Tunis",
+      "adresse": "21, rue Sidi Abou El Kacem Jelizi - Place Maakel Ezzaïm",
+      "contact": { "tel": "71 575 870", "fax": "71 576 151", "email": "ez_zitouna@yahoo.fr", "site_web": "http://www.uz.rnu.tn/" },
+      "etablissements": []
+    },
+    {
+      "id": "10",
+      "nom": "Université de la Manouba",
+      "gouvernorat": "Manouba",
+      "adresse": "Campus universitaire de la Manouba – 2010 Manouba",
+      "contact": { "tel": "71 601 499", "fax": "71 602 211", "email": "mail@uma.rnu.tn", "site_web": "http://www.uma.rnu.tn/" },
+      "etablissements": []
+    }
+  ]
+}
