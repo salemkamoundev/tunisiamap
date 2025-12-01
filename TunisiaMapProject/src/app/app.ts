@@ -21,7 +21,7 @@ export class App {
   currentLayer: any = null;
 
   // --- NOUVELLE LISTE DES CATÉGORIES ---
-categories: string[] = [ 'Stade', 'Lycée', 'Maison des Jeunes', 'Poste', 'Université', 'École', 'Budget 2021' ];
+categories: string[] = [ "Sélectionnez une catégorie",'Stade', 'Université', 'École','Hôpital', 'Budget 2021' ];
 
   // Variables Filtres
   isBudgetActive: boolean = false;
@@ -200,7 +200,7 @@ categories: string[] = [ 'Stade', 'Lycée', 'Maison des Jeunes', 'Poste', 'Unive
     this.mapService.getLocations().subscribe({
       next: (locations) => {
         const filtered = category === 'Toutes' 
-          ? locations 
+          ? null 
           : locations.filter(l => l.categorie === category);
 
         const standardCluster = L.markerClusterGroup();
