@@ -1,13 +1,45 @@
-{{categories|json}}
 <div class="map-container">
   
   <div class="map-controls">
-    <label for="catSelect"><strong>Choisissez une catégorie :</strong></label>
-    <select id="catSelect" (change)="onCategoryChange($any($event))">
-      <option *ngFor="let cat of categories" [value]="cat">
-        {{ cat }}
-      </option>
-    </select>
+    <div class="main-select">
+      <label><strong>Catégorie :</strong></label>
+      <select (change)="onCategoryChange($any($event))">
+        <option *ngFor="let cat of categories" [value]="cat">
+          {{ cat }}
+        </option>
+      </select>
+    </div>
+
+    <div *ngIf="isBudgetActive" class="filter-container">
+      <hr>
+      <div class="filter-header">
+        <strong>Filtres Budget</strong>
+        <button class="toggle-btn" (click)="filtersVisible = !filtersVisible">
+          {{ filtersVisible ? 'Masquer' : 'Afficher' }}
+        </button>
+      </div>
+
+      <div *ngIf="filtersVisible" class="filter-body">
+        
+        <div class="filter-group">
+          <label>Gouvernorat :</label>
+          <select [(ngModel)]="selectedGov" (change)="applyBudgetFilters()">
+            <option value="">(Tous)</option>
+            <option *ngFor="let g of listGouvernorats" [value]="g">{{ g }}</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Municipalité :</label>
+          <select [(ngModel)]="selectedMun" (change)="applyBudgetFilters()">
+            <option value="">(Toutes)</option>
+            <option *ngFor="let m of listMunicipalites" [value]="m">{{ m }}</option>
+          </select>
+        </div>
+
+        <button class="reset-btn" (click)="resetFilters()">Réinitialiser</button>
+      </div>
+    </div>
   </div>
 
   <div
@@ -16,5 +48,4 @@
     [leafletOptions]="options"
     (leafletMapReady)="onMapReady($any($event))">
   </div>
-
 </div>
