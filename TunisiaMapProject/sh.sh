@@ -1,14 +1,27 @@
 #!/bin/bash
 
-echo "🚑 Réparation de l'affichage de toutes les catégories..."
+echo "🚀 Activation du clustering pour TOUTES les catégories..."
 
-# 1. Réécriture de src/app/app.ts avec la logique corrigée
+# 1. Vérification des styles CSS (Obligatoire pour le clustering simple)
+echo "🎨 Vérification de src/styles.css..."
+if ! grep -q "MarkerCluster.Default.css" src/styles.css; then
+  cat <<EOF >> src/styles.css
+
+/* Imports requis pour le clustering standard (Boules colorées) */
+@import "leaflet.markercluster/dist/MarkerCluster.css";
+@import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+@import "leaflet/dist/leaflet.css";
+EOF
+fi
+
+# 2. Réécriture de src/app/app.ts
 echo "💻 Mise à jour de src/app/app.ts..."
 cat <<EOF > src/app/app.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { HttpClientModule } from '@angular/common/http';
 import { LeafletModule } from '@bluehalo/ngx-leaflet'; 
+// import { LeafletModule } from 'ngx-leaflet'; // Décommentez si @bluehalo pose problème
 
 import * as L from 'leaflet';
 import 'leaflet.markercluster'; 
@@ -50,14 +63,13 @@ export class App {
 
   onMapReady(map: L.Map) {
     this.map = map;
-    // Charge 'Toutes' au démarrage
     this.loadStandardData('Toutes');
   }
 
   onCategoryChange(event: any) {
     const selectedCat = event.target.value;
     
-    // Nettoyage du calque précédent
+    // Nettoyage de la carte
     if (this.currentLayer && this.map) {
       this.map.removeLayer(this.currentLayer);
       this.currentLayer = null;
@@ -70,13 +82,13 @@ export class App {
     }
   }
 
-  // --- 1. LOGIQUE SPÉCIALE BUDGET 2021 (Somme + Popup Complet) ---
+  // --- 1. CLUSTERING SPÉCIAL (Budget 2021) ---
+  // Affiche la SOMME des montants dans des bulles vertes
   loadBudgetData() {
     this.mapService.getBudget2021().subscribe({
       next: (data) => {
         const budgetCluster = L.markerClusterGroup({
           maxClusterRadius: 60,
-          // Icône personnalisée avec la SOMME
           iconCreateFunction: (cluster) => {
             const markers = cluster.getAllChildMarkers();
             let totalPrevision = 0;
@@ -134,37 +146,41 @@ export class App {
     });
   }
 
-  // --- 2. LOGIQUE STANDARD (Clustering par défaut) ---
+  // --- 2. CLUSTERING SIMPLE (Standard) ---
+  // Affiche le NOMBRE de points dans des bulles par défaut (Bleu/Jaune/Rouge)
   loadStandardData(category: string) {
     this.mapService.getLocations().subscribe({
       next: (locations) => {
-        // CORRECTION MAJEURE ICI : Si 'Toutes', on prend tout le tableau locations
+        // Correction du bug "Toutes" : si category est 'Toutes', on prend tout le tableau
         const filtered = category === 'Toutes' 
           ? locations 
           : locations.filter(l => l.categorie === category);
 
-        // On utilise MarkerClusterGroup pour avoir le regroupement standard (bleu/jaune/rouge)
+        // CHANGEMENT ICI : Utilisation de markerClusterGroup() au lieu de layerGroup()
+        // Cela active le regroupement automatique standard de Leaflet
         const standardCluster = L.markerClusterGroup();
 
-        filtered.forEach(loc => {
-          const marker = L.marker([loc.lat, loc.lng], {
-            icon: L.icon({
-              iconUrl: 'assets/marker-icon.png',
-              shadowUrl: 'assets/marker-shadow.png',
-              iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
-            })
+        if (filtered) {
+          filtered.forEach(loc => {
+            const marker = L.marker([loc.lat, loc.lng], {
+              icon: L.icon({
+                iconUrl: 'assets/marker-icon.png',
+                shadowUrl: 'assets/marker-shadow.png',
+                iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
+              })
+            });
+            marker.bindPopup(\`<b>\${loc.nom}</b><br>\${loc.categorie}\`);
+            standardCluster.addLayer(marker);
           });
-          marker.bindPopup(\`<b>\${loc.nom}</b><br>\${loc.categorie}\`);
-          standardCluster.addLayer(marker);
-        });
+        }
 
         this.currentLayer = standardCluster;
         this.map.addLayer(this.currentLayer);
 
-        // Zoom automatique pour voir les points
-        if (filtered.length > 0) {
-            const bounds = standardCluster.getBounds();
-            if (bounds.isValid()) this.map.fitBounds(bounds);
+        // Zoom automatique pour voir les résultats
+        if (filtered && filtered.length > 0) {
+           const bounds = standardCluster.getBounds();
+           if (bounds.isValid()) this.map.fitBounds(bounds);
         }
       },
       error: (err) => console.error('Erreur Standard:', err)
@@ -190,13 +206,5 @@ export class App {
 }
 EOF
 
-# 2. Assurance du CSS MarkerCluster (Au cas où)
-echo "🎨 Vérification des styles..."
-if ! grep -q "MarkerCluster.css" src/styles.css; then
-  cat <<EOF >> src/styles.css
-@import "leaflet.markercluster/dist/MarkerCluster.css";
-@import "leaflet.markercluster/dist/MarkerCluster.Default.css";
-EOF
-fi
-
-echo "✅ Correction appliquée. Relancez 'ng serve'."
+echo "✅ Terminé : Clustering simple activé pour les catégories classiques."
+echo "👉 Lancez 'ng serve' et testez 'Lycée' (Clusters Bleus) et 'Budget 2021' (Clusters Verts)."

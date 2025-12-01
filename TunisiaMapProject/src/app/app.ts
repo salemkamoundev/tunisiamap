@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { HttpClientModule } from '@angular/common/http';
 import { LeafletModule } from '@bluehalo/ngx-leaflet'; 
-// import { LeafletModule } from 'ngx-leaflet'; // Décommentez si @bluehalo ne marche pas
+// import { LeafletModule } from 'ngx-leaflet'; // Décommentez si @bluehalo pose problème
 
 import * as L from 'leaflet';
 import 'leaflet.markercluster'; 
@@ -20,16 +20,7 @@ export class App {
   map!: L.Map;
   currentLayer: any = null;
 
-  // Définition explicite des catégories pour le menu
-  categories: string[] = [
-    'Stade',
-    'Lycée',
-    'Maison des Jeunes',
-    'Poste',
-    'Université',
-    'École',
-    'Budget 2021'
-  ];
+  categories: string[] = ['École', 'Stade', 'Lycée', 'Maison des Jeunes', 'Poste', 'Université', 'Budget 2021' ];
 
   options = {
     layers: [
@@ -46,13 +37,13 @@ export class App {
 
   onMapReady(map: L.Map) {
     this.map = map;
-    this.loadStandardData('Stade');
+    this.loadStandardData('Toutes');
   }
 
   onCategoryChange(event: any) {
     const selectedCat = event.target.value;
     
-    // Nettoyage du calque précédent
+    // Nettoyage de la carte
     if (this.currentLayer && this.map) {
       this.map.removeLayer(this.currentLayer);
       this.currentLayer = null;
@@ -65,25 +56,23 @@ export class App {
     }
   }
 
-  // --- LOGIQUE BUDGET 2021 (Somme Prévision + Popup Complet) ---
+  // --- 1. CLUSTERING SPÉCIAL (Budget 2021) ---
+  // Affiche la SOMME des montants dans des bulles vertes
   loadBudgetData() {
     this.mapService.getBudget2021().subscribe({
       next: (data) => {
         const budgetCluster = L.markerClusterGroup({
           maxClusterRadius: 60,
-          // Création de l'icône du cluster avec la SOMME
           iconCreateFunction: (cluster) => {
             const markers = cluster.getAllChildMarkers();
             let totalPrevision = 0;
 
-            // Addition des montants stockés dans les options des marqueurs
             markers.forEach((marker: any) => {
               if (marker.options.previsionAmount) {
                 totalPrevision += marker.options.previsionAmount;
               }
             });
 
-            // Formatage (Ex: 1 200 TND)
             const formattedSum = new Intl.NumberFormat('fr-TN', { 
               style: 'currency', currency: 'TND', maximumFractionDigits: 0 
             }).format(totalPrevision);
@@ -102,8 +91,6 @@ export class App {
         data.forEach(item => {
           const lat = parseFloat(item.lat);
           const lng = parseFloat(item.lng);
-
-          // Nettoyage et parsing de 'depenses_prevision'
           const rawPrevision = item.depenses_prevision ? String(item.depenses_prevision) : '0';
           const valPrevision = parseFloat(rawPrevision.replace(/\s/g, '').replace(',', '.'));
 
@@ -115,11 +102,7 @@ export class App {
                 iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
               })
             });
-
-            // On stocke la valeur pour le calcul du cluster
             (marker.options as any)['previsionAmount'] = valPrevision;
-
-            // Popup : Tous les champs
             marker.bindPopup(this.generateFullPopup(item));
             budgetCluster.addLayer(marker);
           }
@@ -137,40 +120,54 @@ export class App {
     });
   }
 
+  // --- 2. CLUSTERING SIMPLE (Standard) ---
+  // Affiche le NOMBRE de points dans des bulles par défaut (Bleu/Jaune/Rouge)
   loadStandardData(category: string) {
     this.mapService.getLocations().subscribe({
       next: (locations) => {
-        const filtered = category === 'Toutes' ? locations : locations.filter(l => l.categorie === category);
-        const layerGroup = L.layerGroup();
+        // Correction du bug "Toutes" : si category est 'Toutes', on prend tout le tableau
+        const filtered = category === 'Toutes' 
+          ? locations 
+          : locations.filter(l => l.categorie === category);
 
-        filtered.forEach(loc => {
-          const marker = L.marker([loc.lat, loc.lng], {
-            icon: L.icon({
-               iconUrl: 'assets/marker-icon.png',
-               shadowUrl: 'assets/marker-shadow.png',
-               iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
-            })
+        // CHANGEMENT ICI : Utilisation de markerClusterGroup() au lieu de layerGroup()
+        // Cela active le regroupement automatique standard de Leaflet
+        const standardCluster = L.markerClusterGroup();
+
+        if (filtered) {
+          filtered.forEach(loc => {
+            const marker = L.marker([loc.lat, loc.lng], {
+              icon: L.icon({
+                iconUrl: 'assets/marker-icon.png',
+                shadowUrl: 'assets/marker-shadow.png',
+                iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
+              })
+            });
+            marker.bindPopup(`<b>${loc.nom}</b><br>${loc.categorie}`);
+            standardCluster.addLayer(marker);
           });
-          marker.bindPopup(`<b>${loc.nom}</b><br>${loc.categorie}`);
-          layerGroup.addLayer(marker);
-        });
+        }
 
-        this.currentLayer = layerGroup;
+        this.currentLayer = standardCluster;
         this.map.addLayer(this.currentLayer);
-      }
+
+        // Zoom automatique pour voir les résultats
+        if (filtered && filtered.length > 0) {
+           const bounds = standardCluster.getBounds();
+           if (bounds.isValid()) this.map.fitBounds(bounds);
+        }
+      },
+      error: (err) => console.error('Erreur Standard:', err)
     });
   }
 
-  // Génère un tableau HTML pour TOUTES les propriétés du JSON
   generateFullPopup(data: any): string {
     let rows = '';
     for (const key in data) {
       if (data.hasOwnProperty(key) && key !== 'lat' && key !== 'lng') {
-         // Petite mise en forme pour le libellé
-         const label = key; 
          rows += `
           <tr>
-            <td style="font-weight:bold; color:#555; padding:3px; border-bottom:1px solid #eee;">${label}</td>
+            <td style="font-weight:bold; color:#555; padding:3px; border-bottom:1px solid #eee;">${key}</td>
             <td style="padding:3px; border-bottom:1px solid #eee;">${data[key]}</td>
           </tr>`;
       }
