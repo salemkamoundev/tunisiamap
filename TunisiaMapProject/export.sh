@@ -4,7 +4,7 @@
 OUTPUT_FILE="merged_angular_src.txt"
 
 # Dossier source
-SOURCE_DIR="src/app"
+SOURCE_DIR="src"
 
 # Extensions à inclure (fichiers de code et de configuration)
 INCLUDED_EXTENSIONS="html|ts|js|css|scss|json|md|txt"

@@ -1,63 +1,63 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms'; 
-import { LeafletModule } from '@bluehalo/ngx-leaflet'; 
 
-import * as L from 'leaflet';
-import 'leaflet.markercluster'; 
 import { MapDataService } from './services/map-data.service';
+
+// On utilise le L global du CDN
+declare const L: any;
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, LeafletModule, HttpClientModule, FormsModule],
+  imports: [CommonModule, HttpClientModule, FormsModule],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
   providers: [MapDataService]
 })
-export class App {
-  map!: L.Map;
+export class App implements AfterViewInit {
+  map!: any;
   currentLayer: any = null;
 
-  // --- NOUVELLE LISTE DES CATÉGORIES ---
-categories: string[] = [ "Sélectionnez une catégorie",'Stade', 'Université', 'École','Hôpital', 'Budget 2021' ];
+  categories: string[] = [ 
+    'Stade', 'Lycée', 'Maison des Jeunes', 'Poste', 'Université', 'École', 'Budget 2021' 
+  ];
 
-  // Variables Filtres
   isBudgetActive: boolean = false;
   filtersVisible: boolean = true;
+  
   allBudgetData: any[] = [];
   filteredBudgetData: any[] = [];
+  
   listGouvernorats: string[] = [];
   listMunicipalites: string[] = [];
+  
   selectedGov: string = '';
   selectedMun: string = '';
 
-  options = {
-    layers: [
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap contributors'
-      })
-    ],
-    zoom: 7,
-    center: L.latLng(33.8869, 9.5375)
-  };
-
   constructor(private mapService: MapDataService) {}
 
-  onMapReady(map: L.Map) {
-    this.map = map;
-    // Charge la première catégorie par défaut (Stade) ou 'Toutes' si vous préférez
-    // Ici on ne charge rien au début ou une catégorie par défaut
-    // this.loadStandardData('Stade'); 
+  ngAfterViewInit() {
+    this.initMap();
+  }
+
+  initMap() {
+    // Initialisation manuelle
+    this.map = L.map('map').setView([33.8869, 9.5375], 7);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(this.map);
+
+    this.loadStandardData('Toutes');
   }
 
   onCategoryChange(event: any) {
     const selectedCat = event.target.value;
-    
     this.isBudgetActive = (selectedCat === 'Budget 2021');
-    
+
     if (this.currentLayer && this.map) {
       this.map.removeLayer(this.currentLayer);
       this.currentLayer = null;
@@ -70,13 +70,12 @@ categories: string[] = [ "Sélectionnez une catégorie",'Stade', 'Université', 
     }
   }
 
-  // --- LOGIQUE BUDGET 2021 AVEC NOMS GÉOGRAPHIQUES ---
   loadBudgetData() {
     this.mapService.getBudget2021().subscribe({
       next: (data) => {
         this.allBudgetData = data;
         this.extractFilterOptions();
-        this.applyBudgetFilters(); // Lance l'affichage
+        this.applyBudgetFilters();
       },
       error: (err) => console.error('Erreur Budget:', err)
     });
@@ -110,40 +109,30 @@ categories: string[] = [ "Sélectionnez une catégorie",'Stade', 'Université', 
     }
 
     const budgetCluster = L.markerClusterGroup({
-      maxClusterRadius: 80, // Légèrement augmenté pour grouper plus large
-      iconCreateFunction: (cluster) => {
+      maxClusterRadius: 80,
+      iconCreateFunction: (cluster: any) => {
         const markers = cluster.getAllChildMarkers();
         let totalPrevision = 0;
-        
-        // Sets pour détecter l'unicité des lieux
         const govs = new Set();
         const muns = new Set();
 
         markers.forEach((marker: any) => {
-          // Somme
-          if (marker.options.previsionAmount) {
-            totalPrevision += marker.options.previsionAmount;
-          }
-          // Collecte des noms géographiques attachés au marker
+          if (marker.options.previsionAmount) totalPrevision += marker.options.previsionAmount;
           if (marker.options.govName) govs.add(marker.options.govName);
           if (marker.options.munName) muns.add(marker.options.munName);
         });
 
-        // --- Logique de détermination du Nom ---
-        let locationLabel = 'Zones Multiples'; // Par défaut
+        let locationLabel = 'Zones Multiples';
         let locationClass = 'mixed';
 
         if (muns.size === 1) {
-          // Si une seule municipalité dans tout le cluster
           locationLabel = [...muns][0] as string;
           locationClass = 'municipalite';
         } else if (govs.size === 1) {
-          // Si plusieurs municipalités mais un seul Gouvernorat
           locationLabel = [...govs][0] as string;
           locationClass = 'gouvernorat';
         } else {
-            // Mélange de gouvernorats (ex: frontière Tunis/Ariana)
-            locationLabel = 'Divers';
+          locationLabel = 'Divers';
         }
 
         const formattedSum = new Intl.NumberFormat('fr-TN', { 
@@ -157,7 +146,7 @@ categories: string[] = [ "Sélectionnez une catégorie",'Stade', 'Université', 
                    <small>(${markers.length} projets)</small>
                  </div>`,
           className: 'budget-cluster',
-          iconSize: L.point(100, 100) // Agrandir un peu pour le texte
+          iconSize: L.point(100, 100)
         });
       }
     });
@@ -177,10 +166,9 @@ categories: string[] = [ "Sélectionnez une catégorie",'Stade', 'Université', 
           })
         });
         
-        // ATTACHEMENT DES DONNÉES AU MARKER (Crucial pour le cluster)
-        (marker.options as any)['previsionAmount'] = valPrevision;
-        (marker.options as any)['govName'] = item.Nom_Gouvernorat_Ar;
-        (marker.options as any)['munName'] = item.Nom_Municipalite_Ar;
+        (marker as any).options.previsionAmount = valPrevision;
+        (marker as any).options.govName = item.Nom_Gouvernorat_Ar;
+        (marker as any).options.munName = item.Nom_Municipalite_Ar;
 
         marker.bindPopup(this.generateFullPopup(item));
         budgetCluster.addLayer(marker);
@@ -200,7 +188,7 @@ categories: string[] = [ "Sélectionnez une catégorie",'Stade', 'Université', 
     this.mapService.getLocations().subscribe({
       next: (locations) => {
         const filtered = category === 'Toutes' 
-          ? null 
+          ? locations 
           : locations.filter(l => l.categorie === category);
 
         const standardCluster = L.markerClusterGroup();
@@ -220,7 +208,8 @@ categories: string[] = [ "Sélectionnez une catégorie",'Stade', 'Université', 
         }
         this.currentLayer = standardCluster;
         this.map.addLayer(this.currentLayer);
-        if(filtered && filtered.length > 0) {
+        
+        if (filtered && filtered.length > 0) {
            const bounds = standardCluster.getBounds();
            if(bounds.isValid()) this.map.fitBounds(bounds);
         }

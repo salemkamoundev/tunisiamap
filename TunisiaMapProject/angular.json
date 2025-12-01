@@ -9,14 +9,30 @@
     "TunisiaMapProject": {
       "projectType": "application",
       "schematics": {
-        "@schematics/angular:class": { "skipTests": true },
-        "@schematics/angular:component": { "skipTests": true },
-        "@schematics/angular:directive": { "skipTests": true },
-        "@schematics/angular:guard": { "skipTests": true },
-        "@schematics/angular:interceptor": { "skipTests": true },
-        "@schematics/angular:pipe": { "skipTests": true },
-        "@schematics/angular:resolver": { "skipTests": true },
-        "@schematics/angular:service": { "skipTests": true }
+        "@schematics/angular:class": {
+          "skipTests": true
+        },
+        "@schematics/angular:component": {
+          "skipTests": true
+        },
+        "@schematics/angular:directive": {
+          "skipTests": true
+        },
+        "@schematics/angular:guard": {
+          "skipTests": true
+        },
+        "@schematics/angular:interceptor": {
+          "skipTests": true
+        },
+        "@schematics/angular:pipe": {
+          "skipTests": true
+        },
+        "@schematics/angular:resolver": {
+          "skipTests": true
+        },
+        "@schematics/angular:service": {
+          "skipTests": true
+        }
       },
       "root": "",
       "sourceRoot": "src",
@@ -26,27 +42,38 @@
           "builder": "@angular/build:application",
           "options": {
             "browser": "src/main.ts",
-            "polyfills": ["zone.js"],
+            "polyfills": [
+              "zone.js"
+            ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
-              { "glob": "**/*", "input": "public" },
+              {
+                "glob": "**/*",
+                "input": "public"
+              },
               "src/assets"
             ],
             "styles": [
-              "src/styles.css",
-              "node_modules/leaflet/dist/leaflet.css",
-              "node_modules/leaflet.markercluster/dist/MarkerCluster.css",
-              "node_modules/leaflet.markercluster/dist/MarkerCluster.Default.css"
+              "src/styles.css"
             ],
             "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
-                { "type": "initial", "maximumWarning": "2MB", "maximumError": "5MB" },
-                { "type": "anyComponentStyle", "maximumWarning": "4kB", "maximumError": "8kB" }
+                {
+                  "type": "initial",
+                  "maximumWarning": "2MB",
+                  "maximumError": "5MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "optimization": false
             },
             "development": {
               "optimization": false,
@@ -59,19 +86,31 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "configurations": {
-            "production": { "buildTarget": "TunisiaMapProject:build:production" },
-            "development": { "buildTarget": "TunisiaMapProject:build:development" }
+            "production": {
+              "buildTarget": "TunisiaMapProject:build:production"
+            },
+            "development": {
+              "buildTarget": "TunisiaMapProject:build:development"
+            }
           },
           "defaultConfiguration": "development"
         },
-        "extract-i18n": { "builder": "@angular/build:extract-i18n" },
+        "extract-i18n": {
+          "builder": "@angular/build:extract-i18n"
+        },
         "test": {
           "builder": "@angular/build:karma",
           "options": {
-            "polyfills": ["zone.js", "zone.js/testing"],
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
             "tsConfig": "tsconfig.spec.json",
             "assets": [
-              { "glob": "**/*", "input": "public" },
+              {
+                "glob": "**/*",
+                "input": "public"
+              },
               "src/assets"
             ],
             "styles": [

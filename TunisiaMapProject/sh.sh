@@ -1,94 +1,132 @@
 #!/bin/bash
 
-echo "🚑 Rétablissement complet du projet (Filtres, Clusters, Catégories)..."
+echo "🧹 NETTOYAGE COMPLET POUR CDN (Correction Production)..."
 
-# 1. CSS : Restauration des imports Leaflet et Styles Filtres
-echo "🎨 Restauration de src/styles.css..."
-mkdir -p src
-# On s'assure que le fichier existe
-touch src/styles.css
-# On ajoute les imports MarkerCluster s'ils manquent
-if ! grep -q "MarkerCluster.Default.css" src/styles.css; then
-  cat <<EOF >> src/styles.css
+# 1. NETTOYAGE DE MAIN.TS (CRITIQUE)
+# On retire les imports de leaflet qui causent le conflit.
+echo "💻 Correction de src/main.ts..."
+cat <<EOF > src/main.ts
+import { bootstrapApplication } from '@angular/platform-browser';
+import { appConfig } from './app/app.config';
+import { AppComponent } from './app/app.component';
 
-/* Imports Leaflet MarkerCluster requis pour le regroupement */
-@import "leaflet.markercluster/dist/MarkerCluster.css";
-@import "leaflet.markercluster/dist/MarkerCluster.Default.css";
-@import "leaflet/dist/leaflet.css";
+// NOTE : Aucune importation de Leaflet ici.
+// Leaflet est chargé globalement par le CDN dans index.html.
+
+bootstrapApplication(AppComponent, appConfig)
+  .catch((err) => console.error(err));
 EOF
-fi
 
-# 2. TypeScript : Fusion de la logique avancée dans AppComponent
-echo "💻 Reconstruction de src/app/app.component.ts..."
+# 2. NETTOYAGE DE STYLES.CSS
+# On retire les @import node_modules car le CSS est déjà dans index.html
+echo "🎨 Correction de src/styles.css..."
+cat <<EOF > src/styles.css
+/* Styles globaux */
+html, body { 
+    height: 100%; 
+    margin: 0; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Note: Les CSS de Leaflet sont chargés via CDN dans index.html */
+EOF
+
+# 3. VERIFICATION DE ANGULAR.JSON
+# On s'assure qu'aucun script Leaflet n'est injecté par le build
+cat <<EOF > fix-build-config.js
+const fs = require('fs');
+const fileName = 'angular.json';
+
+try {
+    const data = fs.readFileSync(fileName, 'utf8');
+    const json = JSON.parse(data);
+    const projectName = Object.keys(json.projects)[0];
+    const buildOptions = json.projects[projectName].architect.build.options;
+
+    // 1. On vide les scripts (Le CDN s'en charge)
+    buildOptions.scripts = [];
+
+    // 2. On nettoie les styles (Le CDN s'en charge pour Leaflet)
+    // On ne garde que votre fichier styles.css
+    buildOptions.styles = [
+        "src/styles.css"
+    ];
+
+    fs.writeFileSync(fileName, JSON.stringify(json, null, 2));
+    console.log("✅ angular.json nettoyé : plus de dépendances Leaflet dans le build.");
+
+} catch (e) {
+    console.error("❌ Erreur JS:", e);
+}
+EOF
+node fix-build-config.js
+rm fix-build-config.js
+
+# 4. APP.COMPONENT.TS (Déjà correct dans votre envoi, mais on s'assure)
+# On garde la version qui utilise "declare const L: any;"
+echo "💻 Validation de src/app/app.component.ts..."
 cat <<EOF > src/app/app.component.ts
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms'; 
-import { LeafletModule } from '@bluehalo/ngx-leaflet'; 
-
-import * as L from 'leaflet';
-import 'leaflet.markercluster'; 
 import { MapDataService } from './services/map-data.service';
+
+// C'est la ligne magique qui connecte le CDN
+declare const L: any;
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, LeafletModule, HttpClientModule, FormsModule],
+  imports: [CommonModule, HttpClientModule, FormsModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   providers: [MapDataService]
 })
-export class AppComponent {
-  map!: L.Map;
+export class AppComponent implements AfterViewInit {
+  map!: any;
   currentLayer: any = null;
 
-  // Liste complète de vos catégories
   categories: string[] = [ 
-    'Stade', 
-    'Lycée', 
-    'Maison des Jeunes', 
-    'Poste', 
-    'Université', 
-    'École', 
-    'Budget 2021' 
+    'Stade', 'Lycée', 'Maison des Jeunes', 'Poste', 'Université', 'École', 'Budget 2021' 
   ];
 
-  // Variables pour les Filtres (Budget)
   isBudgetActive: boolean = false;
   filtersVisible: boolean = true;
   
   allBudgetData: any[] = [];
   filteredBudgetData: any[] = [];
-  
   listGouvernorats: string[] = [];
   listMunicipalites: string[] = [];
-  
   selectedGov: string = '';
   selectedMun: string = '';
 
-  options = {
-    layers: [
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap contributors'
-      })
-    ],
-    zoom: 7,
-    center: L.latLng(33.8869, 9.5375)
-  };
-
   constructor(private mapService: MapDataService) {}
 
-  onMapReady(map: L.Map) {
-    this.map = map;
-    // Charge par défaut
+  ngAfterViewInit() {
+    // Petit délai pour s'assurer que le CDN est prêt (sécurité)
+    setTimeout(() => {
+        if (typeof L !== 'undefined') {
+            this.initMap();
+        } else {
+            console.error('Leaflet non chargé ! Vérifiez index.html');
+        }
+    }, 100);
+  }
+
+  initMap() {
+    this.map = L.map('map').setView([33.8869, 9.5375], 7);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(this.map);
+
     this.loadStandardData('Toutes');
   }
 
   onCategoryChange(event: any) {
     const selectedCat = event.target.value;
-    
     this.isBudgetActive = (selectedCat === 'Budget 2021');
 
     if (this.currentLayer && this.map) {
@@ -103,7 +141,6 @@ export class AppComponent {
     }
   }
 
-  // --- LOGIQUE BUDGET (Filtres + Clusters Intelligents) ---
   loadBudgetData() {
     this.mapService.getBudget2021().subscribe({
       next: (data) => {
@@ -144,22 +181,18 @@ export class AppComponent {
 
     const budgetCluster = L.markerClusterGroup({
       maxClusterRadius: 80,
-      iconCreateFunction: (cluster) => {
+      iconCreateFunction: (cluster: any) => {
         const markers = cluster.getAllChildMarkers();
         let totalPrevision = 0;
-        
         const govs = new Set();
         const muns = new Set();
 
         markers.forEach((marker: any) => {
-          if (marker.options.previsionAmount) {
-            totalPrevision += marker.options.previsionAmount;
-          }
+          if (marker.options.previsionAmount) totalPrevision += marker.options.previsionAmount;
           if (marker.options.govName) govs.add(marker.options.govName);
           if (marker.options.munName) muns.add(marker.options.munName);
         });
 
-        // Logique d'affichage du nom de la zone
         let locationLabel = 'Zones Multiples';
         let locationClass = 'mixed';
 
@@ -204,9 +237,9 @@ export class AppComponent {
           })
         });
         
-        (marker.options as any)['previsionAmount'] = valPrevision;
-        (marker.options as any)['govName'] = item.Nom_Gouvernorat_Ar;
-        (marker.options as any)['munName'] = item.Nom_Municipalite_Ar;
+        (marker as any).options.previsionAmount = valPrevision;
+        (marker as any).options.govName = item.Nom_Gouvernorat_Ar;
+        (marker as any).options.munName = item.Nom_Municipalite_Ar;
 
         marker.bindPopup(this.generateFullPopup(item));
         budgetCluster.addLayer(marker);
@@ -222,16 +255,13 @@ export class AppComponent {
     }
   }
 
-  // --- LOGIQUE STANDARD (Clustering simple) ---
   loadStandardData(category: string) {
     this.mapService.getLocations().subscribe({
       next: (locations) => {
-        // Correction du bug "Toutes"
         const filtered = category === 'Toutes' 
           ? locations 
           : locations.filter(l => l.categorie === category);
 
-        // Activation du regroupement standard
         const standardCluster = L.markerClusterGroup();
 
         if (filtered) {
@@ -278,165 +308,13 @@ export class AppComponent {
 }
 EOF
 
-# 3. HTML : Interface avec Panneau de Filtres
-echo "📄 Reconstruction de src/app/app.component.html..."
-cat <<EOF > src/app/app.component.html
-<div class="map-container">
-  
-  <div class="map-controls">
-    <div class="main-select">
-      <label><strong>Catégorie :</strong></label>
-      <select (change)="onCategoryChange(\$any(\$event))">
-        <option *ngFor="let cat of categories" [value]="cat">
-          {{ cat }}
-        </option>
-      </select>
-    </div>
+# 5. NETTOYAGE CACHE ET BUILD
+echo "🧹 Nettoyage..."
+rm -rf .angular
+rm -rf dist
 
-    <div *ngIf="isBudgetActive" class="filter-container">
-      <hr>
-      <div class="filter-header">
-        <strong>Filtres Budget</strong>
-        <button class="toggle-btn" (click)="filtersVisible = !filtersVisible">
-          {{ filtersVisible ? 'Masquer' : 'Afficher' }}
-        </button>
-      </div>
+echo "🏗️  Build de Production..."
+ng build
 
-      <div *ngIf="filtersVisible" class="filter-body">
-        
-        <div class="filter-group">
-          <label>Gouvernorat :</label>
-          <select [(ngModel)]="selectedGov" (change)="applyBudgetFilters()">
-            <option value="">(Tous)</option>
-            <option *ngFor="let g of listGouvernorats" [value]="g">{{ g }}</option>
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <label>Municipalité :</label>
-          <select [(ngModel)]="selectedMun" (change)="applyBudgetFilters()">
-            <option value="">(Toutes)</option>
-            <option *ngFor="let m of listMunicipalites" [value]="m">{{ m }}</option>
-          </select>
-        </div>
-
-        <button class="reset-btn" (click)="resetFilters()">Réinitialiser</button>
-      </div>
-    </div>
-  </div>
-
-  <div
-    id="map"
-    leaflet
-    [leafletOptions]="options"
-    (leafletMapReady)="onMapReady(\$any(\$event))">
-  </div>
-</div>
-EOF
-
-# 4. CSS : Styles Complets (Filtres + Bulles Vertes avec Noms)
-echo "🎨 Reconstruction de src/app/app.component.css..."
-cat <<EOF > src/app/app.component.css
-/* Layout Principal */
-.map-container {
-  position: relative;
-  height: 100vh;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-#map {
-  flex-grow: 1;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-}
-
-/* Contrôles */
-.map-controls {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-  background: white;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  font-family: 'Segoe UI', Arial, sans-serif;
-  min-width: 250px;
-  max-width: 300px;
-}
-.main-select select { width: 100%; padding: 6px; margin-top: 5px; }
-
-/* Filtres */
-.filter-container { margin-top: 10px; animation: fadeIn 0.3s ease-in-out; }
-.filter-header { display: flex; justify-content: space-between; margin-bottom: 10px; color: #28a745; }
-.toggle-btn { background: none; border: none; color: #007bff; font-size: 11px; cursor: pointer; text-decoration: underline; }
-.filter-group { margin-bottom: 8px; }
-.filter-group label { display: block; font-size: 12px; color: #555; }
-.filter-group select { width: 100%; padding: 4px; }
-.reset-btn { width: 100%; padding: 6px; margin-top: 5px; background-color: #f8f9fa; border: 1px solid #ddd; cursor: pointer; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-
-/* --- CLUSTER BUDGET --- */
-::ng-deep .budget-cluster-icon {
-  background-color: rgba(40, 167, 69, 0.95);
-  border: 2px solid white;
-  border-radius: 50%;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100px; 
-  height: 100px; 
-  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-  text-align: center;
-  cursor: pointer;
-  transition: transform 0.2s;
-  padding: 5px;
-  overflow: hidden;
-}
-
-::ng-deep .budget-cluster-icon:hover {
-  background-color: #218838;
-  transform: scale(1.1);
-  z-index: 9999;
-}
-
-/* Montant */
-::ng-deep .budget-cluster-icon .amount {
-  font-weight: bold;
-  font-size: 11px;
-  line-height: 1.2;
-}
-
-/* Nom Géographique (Gouvernorat/Municipalité) */
-::ng-deep .budget-cluster-icon .location {
-  font-size: 10px;
-  font-weight: bold;
-  color: #d4edda; /* Vert très clair */
-  margin-top: 2px;
-  margin-bottom: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 90%;
-}
-
-::ng-deep .budget-cluster-icon small {
-  font-size: 9px;
-  opacity: 0.8;
-  font-weight: normal;
-}
-
-/* Variation de couleur subtile si c'est une municipalité précise */
-::ng-deep .budget-cluster-icon.municipalite {
-  background-color: rgba(30, 126, 52, 0.95);
-  border-color: #c3e6cb;
-}
-EOF
-
-echo "✅ Projet restauré avec succès !"
-echo "👉 Lancez 'ng serve' pour voir le résultat."
+echo "✅ Terminé."
+echo "👉 Lancez maintenant : firebase deploy --only hosting"

@@ -1,71 +1,64 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms'; 
-import { LeafletModule } from '@bluehalo/ngx-leaflet'; 
-
-import * as L from 'leaflet';
-import 'leaflet.markercluster'; 
 import { MapDataService } from './services/map-data.service';
+
+// C'est la ligne magique qui connecte le CDN
+declare const L: any;
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, LeafletModule, HttpClientModule, FormsModule],
+  imports: [CommonModule, HttpClientModule, FormsModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   providers: [MapDataService]
 })
-export class AppComponent {
-  map!: L.Map;
+export class AppComponent implements AfterViewInit {
+  map!: any;
   currentLayer: any = null;
 
-  // Liste complète de vos catégories
   categories: string[] = [ 
-    'Stade', 
-    'Lycée', 
-    'Maison des Jeunes', 
-    'Poste', 
-    'Université', 
-    'École', 
-    'Budget 2021' 
+    'Stade', 'Lycée', 'Maison des Jeunes', 'Poste', 'Université', 'École', 'Budget 2021' 
   ];
 
-  // Variables pour les Filtres (Budget)
   isBudgetActive: boolean = false;
   filtersVisible: boolean = true;
   
   allBudgetData: any[] = [];
   filteredBudgetData: any[] = [];
-  
   listGouvernorats: string[] = [];
   listMunicipalites: string[] = [];
-  
   selectedGov: string = '';
   selectedMun: string = '';
 
-  options = {
-    layers: [
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap contributors'
-      })
-    ],
-    zoom: 7,
-    center: L.latLng(33.8869, 9.5375)
-  };
-
   constructor(private mapService: MapDataService) {}
 
-  onMapReady(map: L.Map) {
-    this.map = map;
-    // Charge par défaut
+  ngAfterViewInit() {
+    // Petit délai pour s'assurer que le CDN est prêt (sécurité)
+    setTimeout(() => {
+        if (typeof L !== 'undefined') {
+            this.initMap();
+        } else {
+            console.error('Leaflet non chargé ! Vérifiez index.html');
+        }
+    }, 100);
+  }
+
+  initMap() {
+    this.map = L.map('map').setView([33.8869, 9.5375], 7);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(this.map);
+
     this.loadStandardData('Toutes');
   }
 
   onCategoryChange(event: any) {
     const selectedCat = event.target.value;
-    
     this.isBudgetActive = (selectedCat === 'Budget 2021');
 
     if (this.currentLayer && this.map) {
@@ -80,7 +73,6 @@ export class AppComponent {
     }
   }
 
-  // --- LOGIQUE BUDGET (Filtres + Clusters Intelligents) ---
   loadBudgetData() {
     this.mapService.getBudget2021().subscribe({
       next: (data) => {
@@ -121,22 +113,18 @@ export class AppComponent {
 
     const budgetCluster = L.markerClusterGroup({
       maxClusterRadius: 80,
-      iconCreateFunction: (cluster) => {
+      iconCreateFunction: (cluster: any) => {
         const markers = cluster.getAllChildMarkers();
         let totalPrevision = 0;
-        
         const govs = new Set();
         const muns = new Set();
 
         markers.forEach((marker: any) => {
-          if (marker.options.previsionAmount) {
-            totalPrevision += marker.options.previsionAmount;
-          }
+          if (marker.options.previsionAmount) totalPrevision += marker.options.previsionAmount;
           if (marker.options.govName) govs.add(marker.options.govName);
           if (marker.options.munName) muns.add(marker.options.munName);
         });
 
-        // Logique d'affichage du nom de la zone
         let locationLabel = 'Zones Multiples';
         let locationClass = 'mixed';
 
@@ -181,9 +169,9 @@ export class AppComponent {
           })
         });
         
-        (marker.options as any)['previsionAmount'] = valPrevision;
-        (marker.options as any)['govName'] = item.Nom_Gouvernorat_Ar;
-        (marker.options as any)['munName'] = item.Nom_Municipalite_Ar;
+        (marker as any).options.previsionAmount = valPrevision;
+        (marker as any).options.govName = item.Nom_Gouvernorat_Ar;
+        (marker as any).options.munName = item.Nom_Municipalite_Ar;
 
         marker.bindPopup(this.generateFullPopup(item));
         budgetCluster.addLayer(marker);
@@ -199,16 +187,13 @@ export class AppComponent {
     }
   }
 
-  // --- LOGIQUE STANDARD (Clustering simple) ---
   loadStandardData(category: string) {
     this.mapService.getLocations().subscribe({
       next: (locations) => {
-        // Correction du bug "Toutes"
         const filtered = category === 'Toutes' 
           ? locations 
           : locations.filter(l => l.categorie === category);
 
-        // Activation du regroupement standard
         const standardCluster = L.markerClusterGroup();
 
         if (filtered) {
