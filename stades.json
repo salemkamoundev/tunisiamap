@@ -1,0 +1,452 @@
+[
+  {
+    "nom": "Stade Olympique Hammadi Agrebi (Radès)",
+    "gouvernorat": "Ben Arous",
+    "tel": "71468000",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade Olympique",
+    "lat": 36.74778,
+    "lng": 10.27278
+  },
+  {
+    "nom": "Stade Olympique d'El Menzah",
+    "gouvernorat": "Tunis",
+    "tel": "71232322",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade Olympique",
+    "lat": 36.83978,
+    "lng": 10.18536
+  },
+  {
+    "nom": "Stade Olympique de Sousse",
+    "gouvernorat": "Sousse",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade Olympique",
+    "lat": 35.82333,
+    "lng": 10.61278
+  },
+  {
+    "nom": "Stade Olympique de Gabès",
+    "gouvernorat": "Gabès",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade Olympique",
+    "lat": 33.8477,
+    "lng": 10.0994
+  },
+  {
+    "nom": "Stade Olympique de Gafsa",
+    "gouvernorat": "Gafsa",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade Olympique",
+    "lat": 34.4225,
+    "lng": 8.7717
+  },
+  {
+    "nom": "Stade Olympique de Médenine",
+    "gouvernorat": "Médenine",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 33.3381,
+    "lng": 10.4953
+  },
+  {
+    "nom": "Stade Hamda-Laouani",
+    "gouvernorat": "Kairouan",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 35.68694,
+    "lng": 10.07361
+  },
+  {
+    "nom": "Stade Ali-Zouaoui",
+    "gouvernorat": "Kairouan",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 35.66639,
+    "lng": 10.10944
+  },
+  {
+    "nom": "Stade Taïeb-Mehiri",
+    "gouvernorat": "Sfax",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 34.73361,
+    "lng": 10.74611
+  },
+  {
+    "nom": "Stade du 2-Mars",
+    "gouvernorat": "Sfax",
+    "tel": "74230586",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 34.75,
+    "lng": 10.77
+  },
+  {
+    "nom": "Stade Chedly-Zouiten",
+    "gouvernorat": "Tunis",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 36.82886,
+    "lng": 10.17012
+  },
+  {
+    "nom": "Stade Mustapha-Ben-Jannet",
+    "gouvernorat": "Monastir",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 35.77639,
+    "lng": 10.82028
+  },
+  {
+    "nom": "Stade Municipal de Teboulba",
+    "gouvernorat": "Monastir",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 35.64139,
+    "lng": 10.97167
+  },
+  {
+    "nom": "Stade Municipal Bou Ali-Lahouar",
+    "gouvernorat": "Sousse",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 35.855,
+    "lng": 10.59861
+  },
+  {
+    "nom": "Stade du 15-Octobre",
+    "gouvernorat": "Bizerte",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 37.27892,
+    "lng": 9.86558
+  },
+  {
+    "nom": "Stade Ahmed-Bsiri",
+    "gouvernorat": "Bizerte",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 37.2789,
+    "lng": 9.8656
+  },
+  {
+    "nom": "Stade Azaiez-Jaballah",
+    "gouvernorat": "Bizerte",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 37.15,
+    "lng": 9.78
+  },
+  {
+    "nom": "Stade Municipal Hmaïd El Moujahed",
+    "gouvernorat": "Bizerte",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 37.09,
+    "lng": 9.87
+  },
+  {
+    "nom": "Stade Boujemaa-Kmiti",
+    "gouvernorat": "Béja",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 36.73333,
+    "lng": 9.18333
+  },
+  {
+    "nom": "Stade du Kef",
+    "gouvernorat": "Kef",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 36.168,
+    "lng": 8.7096
+  },
+  {
+    "nom": "Stade Municipal de Jendouba",
+    "gouvernorat": "Jendouba",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 36.49416,
+    "lng": 8.7822
+  },
+  {
+    "nom": "Stade Municipal de Kasserine",
+    "gouvernorat": "Kasserine",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 35.1719,
+    "lng": 8.8081
+  },
+  {
+    "nom": "Stade Municipal de Métlaoui",
+    "gouvernorat": "Gafsa",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 34.3139,
+    "lng": 8.4018
+  },
+  {
+    "nom": "Stade de Zrig",
+    "gouvernorat": "Gabès",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 33.90,
+    "lng": 10.10
+  },
+  {
+    "nom": "Stade Chenenni",
+    "gouvernorat": "Gabès",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 33.8701,
+    "lng": 10.0503
+  },
+  {
+    "nom": "Stade Bouchemma",
+    "gouvernorat": "Gabès",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 33.9028,
+    "lng": 10.0527
+  },
+  {
+    "nom": "Complexe Sportif Abdessalem Kazouz",
+    "gouvernorat": "Médenine",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 33.4514,
+    "lng": 11.1122
+  },
+  {
+    "nom": "Stade du 7-Mars",
+    "gouvernorat": "Médenine",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 33.13306,
+    "lng": 11.21611
+  },
+  {
+    "nom": "Stade de Houmt Souk",
+    "gouvernorat": "Médenine",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 33.875,
+    "lng": 10.855
+  },
+  {
+    "nom": "Stade Municipal de Midoun",
+    "gouvernorat": "Médenine",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 33.80549,
+    "lng": 10.98719
+  },
+  {
+    "nom": "Stade Néjib-Khattab",
+    "gouvernorat": "Tataouine",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 33.30,
+    "lng": 10.45
+  },
+  {
+    "nom": "Stade Abdelaziz-Chtioui",
+    "gouvernorat": "Tunis",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 36.8717,
+    "lng": 10.3187
+  },
+  {
+    "nom": "Stade Hédi-Enneifer",
+    "gouvernorat": "Tunis",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 36.8161,
+    "lng": 10.1253
+  },
+  {
+    "nom": "Stade Hédi Ben Romdhane",
+    "gouvernorat": "Ben Arous",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 36.75,
+    "lng": 10.27
+  },
+  {
+    "nom": "Stade de Ben Arous",
+    "gouvernorat": "Ben Arous",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 36.7435,
+    "lng": 10.232
+  },
+  {
+    "nom": "Stade Municipal de Hammam Lif",
+    "gouvernorat": "Ben Arous",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 36.72738,
+    "lng": 10.34604
+  },
+  {
+    "nom": "Stade Municipal de l'Ariana",
+    "gouvernorat": "Ariana",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 36.8601,
+    "lng": 10.1934
+  },
+  {
+    "nom": "Stade de Nabeul",
+    "gouvernorat": "Nabeul",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 36.4551,
+    "lng": 10.7154
+  },
+  {
+    "nom": "Stade Municipal d'Hammamet",
+    "gouvernorat": "Nabeul",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 36.3967,
+    "lng": 10.613
+  },
+  {
+    "nom": "Stade Habib-Tajouri",
+    "gouvernorat": "Nabeul",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 36.6444,
+    "lng": 10.5944
+  },
+  {
+    "nom": "Stade de Chebba",
+    "gouvernorat": "Mahdia",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 35.239,
+    "lng": 11.0557
+  },
+  {
+    "nom": "Stade Municipal de Jebniana",
+    "gouvernorat": "Sfax",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 34.50,
+    "lng": 10.58
+  },
+  {
+    "nom": "Stade Farhat-Hached",
+    "gouvernorat": "Mahdia",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 34.7036,
+    "lng": 11.2078
+  },
+  {
+    "nom": "Stade Municipal de Rejiche",
+    "gouvernorat": "Mahdia",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 35.4667,
+    "lng": 11.0333
+  },
+  {
+    "nom": "Stade Municipal de Soliman",
+    "gouvernorat": "Ben Arous",
+    "tel": "",
+    "email": "",
+    "site_web": "",
+    "categorie": "Stade",
+    "lat": 36.80,
+    "lng": 10.35
+  }
+]
