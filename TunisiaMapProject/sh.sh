@@ -1,14 +1,14 @@
 #!/bin/bash
 
-echo "🚀 Ajout des filtres dynamiques pour le Budget 2021..."
+echo "🚀 Mise à jour : Catégories + Affichage des noms de zones dans les clusters..."
 
-# 1. Mise à jour de app.ts (Logique des filtres)
-echo "💻 Mise à jour de src/app/app.ts..."
+# 1. Mise à jour de src/app/app.ts
+echo "💻 Réécriture de src/app/app.ts..."
 cat <<EOF > src/app/app.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms'; // <--- Requis pour [(ngModel)]
+import { FormsModule } from '@angular/forms'; 
 import { LeafletModule } from '@bluehalo/ngx-leaflet'; 
 
 import * as L from 'leaflet';
@@ -18,7 +18,7 @@ import { MapDataService } from './services/map-data.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, LeafletModule, HttpClientModule, FormsModule], // Ajout FormsModule
+  imports: [CommonModule, LeafletModule, HttpClientModule, FormsModule],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
   providers: [MapDataService]
@@ -27,27 +27,24 @@ export class App {
   map!: L.Map;
   currentLayer: any = null;
 
-  categories: string[] = [
-    'Toutes',
-    'Lycée',
-    'Maison des Jeunes',
-    'Poste',
-    'Ministère',
-    'Budget 2021'
+  // --- NOUVELLE LISTE DES CATÉGORIES ---
+  categories: string[] = [ 
+    'Stade', 
+    'Lycée', 
+    'Maison des Jeunes', 
+    'Poste', 
+    'Université', 
+    'École', 
+    'Budget 2021' 
   ];
 
-  // --- Propriétés pour les Filtres Budget ---
-  isBudgetActive: boolean = false;      // Est-ce que la catégorie Budget est choisie ?
-  filtersVisible: boolean = true;       // Est-ce que le panneau filtre est déplié ?
-  
-  allBudgetData: any[] = [];            // Toutes les données brutes
-  filteredBudgetData: any[] = [];       // Données filtrées affichées
-
-  // Listes pour les dropdowns
+  // Variables Filtres
+  isBudgetActive: boolean = false;
+  filtersVisible: boolean = true;
+  allBudgetData: any[] = [];
+  filteredBudgetData: any[] = [];
   listGouvernorats: string[] = [];
   listMunicipalites: string[] = [];
-
-  // Valeurs sélectionnées
   selectedGov: string = '';
   selectedMun: string = '';
 
@@ -66,111 +63,116 @@ export class App {
 
   onMapReady(map: L.Map) {
     this.map = map;
-    this.loadStandardData('Toutes');
+    // Charge la première catégorie par défaut (Stade) ou 'Toutes' si vous préférez
+    // Ici on ne charge rien au début ou une catégorie par défaut
+    // this.loadStandardData('Stade'); 
   }
 
   onCategoryChange(event: any) {
     const selectedCat = event.target.value;
     
-    // Reset de l'état des filtres
     this.isBudgetActive = (selectedCat === 'Budget 2021');
     
-    // Nettoyage carte
     if (this.currentLayer && this.map) {
       this.map.removeLayer(this.currentLayer);
       this.currentLayer = null;
     }
 
     if (this.isBudgetActive) {
-      // Chargement initial des données Budget
       this.loadBudgetData();
     } else {
       this.loadStandardData(selectedCat);
     }
   }
 
-  // --- GESTION DU BUDGET 2021 ---
-
+  // --- LOGIQUE BUDGET 2021 AVEC NOMS GÉOGRAPHIQUES ---
   loadBudgetData() {
     this.mapService.getBudget2021().subscribe({
       next: (data) => {
-        // 1. Sauvegarde des données brutes
         this.allBudgetData = data;
-        
-        // 2. Extraction des filtres (Gouvernorats uniques, etc.)
         this.extractFilterOptions();
-
-        // 3. Application par défaut (tout afficher)
-        this.applyBudgetFilters();
+        this.applyBudgetFilters(); // Lance l'affichage
       },
       error: (err) => console.error('Erreur Budget:', err)
     });
   }
 
-  // Extrait les listes uniques pour les Select
   extractFilterOptions() {
-    // Récupérer les Gouvernorats uniques
     const govs = this.allBudgetData.map(item => item.Nom_Gouvernorat_Ar).filter(Boolean);
     this.listGouvernorats = [...new Set(govs)].sort();
-
-    // On charge toutes les municipalités au début
     const muns = this.allBudgetData.map(item => item.Nom_Municipalite_Ar).filter(Boolean);
     this.listMunicipalites = [...new Set(muns)].sort();
   }
 
-  // Appelé quand l'utilisateur change un filtre
   applyBudgetFilters() {
-    // 1. Filtrer les données
     this.filteredBudgetData = this.allBudgetData.filter(item => {
       const matchGov = this.selectedGov ? item.Nom_Gouvernorat_Ar === this.selectedGov : true;
       const matchMun = this.selectedMun ? item.Nom_Municipalite_Ar === this.selectedMun : true;
       return matchGov && matchMun;
     });
-
-    // 2. Si un gouvernorat est choisi, on pourrait filtrer la liste des municipalités ici (optionnel)
-    // Pour l'instant on garde simple.
-
-    // 3. Dessiner la carte avec les données filtrées
     this.renderBudgetLayer(this.filteredBudgetData);
   }
 
-  // Réinitialiser les filtres
   resetFilters() {
     this.selectedGov = '';
     this.selectedMun = '';
     this.applyBudgetFilters();
   }
 
-  // Dessine le Cluster Vert (réutilisé pour filtrage)
   renderBudgetLayer(data: any[]) {
-    // Nettoyage préventif si on rafraîchit
     if (this.currentLayer && this.map) {
       this.map.removeLayer(this.currentLayer);
     }
 
     const budgetCluster = L.markerClusterGroup({
-      maxClusterRadius: 60,
+      maxClusterRadius: 80, // Légèrement augmenté pour grouper plus large
       iconCreateFunction: (cluster) => {
         const markers = cluster.getAllChildMarkers();
         let totalPrevision = 0;
+        
+        // Sets pour détecter l'unicité des lieux
+        const govs = new Set();
+        const muns = new Set();
 
         markers.forEach((marker: any) => {
+          // Somme
           if (marker.options.previsionAmount) {
             totalPrevision += marker.options.previsionAmount;
           }
+          // Collecte des noms géographiques attachés au marker
+          if (marker.options.govName) govs.add(marker.options.govName);
+          if (marker.options.munName) muns.add(marker.options.munName);
         });
+
+        // --- Logique de détermination du Nom ---
+        let locationLabel = 'Zones Multiples'; // Par défaut
+        let locationClass = 'mixed';
+
+        if (muns.size === 1) {
+          // Si une seule municipalité dans tout le cluster
+          locationLabel = [...muns][0] as string;
+          locationClass = 'municipalite';
+        } else if (govs.size === 1) {
+          // Si plusieurs municipalités mais un seul Gouvernorat
+          locationLabel = [...govs][0] as string;
+          locationClass = 'gouvernorat';
+        } else {
+            // Mélange de gouvernorats (ex: frontière Tunis/Ariana)
+            locationLabel = 'Divers';
+        }
 
         const formattedSum = new Intl.NumberFormat('fr-TN', { 
           style: 'currency', currency: 'TND', maximumFractionDigits: 0 
         }).format(totalPrevision);
 
         return L.divIcon({
-          html: \`<div class="budget-cluster-icon">
-                   <span>\${formattedSum}</span>
-                   <small>(\${markers.length} mun.)</small>
+          html: \`<div class="budget-cluster-icon \${locationClass}">
+                   <span class="amount">\${formattedSum}</span>
+                   <span class="location">\${locationLabel}</span>
+                   <small>(\${markers.length} projets)</small>
                  </div>\`,
           className: 'budget-cluster',
-          iconSize: L.point(90, 90)
+          iconSize: L.point(100, 100) // Agrandir un peu pour le texte
         });
       }
     });
@@ -189,7 +191,12 @@ export class App {
             iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
           })
         });
+        
+        // ATTACHEMENT DES DONNÉES AU MARKER (Crucial pour le cluster)
         (marker.options as any)['previsionAmount'] = valPrevision;
+        (marker.options as any)['govName'] = item.Nom_Gouvernorat_Ar;
+        (marker.options as any)['munName'] = item.Nom_Municipalite_Ar;
+
         marker.bindPopup(this.generateFullPopup(item));
         budgetCluster.addLayer(marker);
       }
@@ -204,7 +211,6 @@ export class App {
     }
   }
 
-  // --- LOGIQUE STANDARD ---
   loadStandardData(category: string) {
     this.mapService.getLocations().subscribe({
       next: (locations) => {
@@ -229,7 +235,6 @@ export class App {
         }
         this.currentLayer = standardCluster;
         this.map.addLayer(this.currentLayer);
-        
         if(filtered && filtered.length > 0) {
            const bounds = standardCluster.getBounds();
            if(bounds.isValid()) this.map.fitBounds(bounds);
@@ -258,63 +263,7 @@ export class App {
 }
 EOF
 
-# 2. Mise à jour du HTML (Ajout de la section Filtres)
-echo "📄 Mise à jour de src/app/app.html..."
-cat <<EOF > src/app/app.html
-<div class="map-container">
-  
-  <div class="map-controls">
-    <div class="main-select">
-      <label><strong>Catégorie :</strong></label>
-      <select (change)="onCategoryChange(\$any(\$event))">
-        <option *ngFor="let cat of categories" [value]="cat">
-          {{ cat }}
-        </option>
-      </select>
-    </div>
-
-    <div *ngIf="isBudgetActive" class="filter-container">
-      <hr>
-      <div class="filter-header">
-        <strong>Filtres Budget</strong>
-        <button class="toggle-btn" (click)="filtersVisible = !filtersVisible">
-          {{ filtersVisible ? 'Masquer' : 'Afficher' }}
-        </button>
-      </div>
-
-      <div *ngIf="filtersVisible" class="filter-body">
-        
-        <div class="filter-group">
-          <label>Gouvernorat :</label>
-          <select [(ngModel)]="selectedGov" (change)="applyBudgetFilters()">
-            <option value="">(Tous)</option>
-            <option *ngFor="let g of listGouvernorats" [value]="g">{{ g }}</option>
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <label>Municipalité :</label>
-          <select [(ngModel)]="selectedMun" (change)="applyBudgetFilters()">
-            <option value="">(Toutes)</option>
-            <option *ngFor="let m of listMunicipalites" [value]="m">{{ m }}</option>
-          </select>
-        </div>
-
-        <button class="reset-btn" (click)="resetFilters()">Réinitialiser</button>
-      </div>
-    </div>
-  </div>
-
-  <div
-    id="map"
-    leaflet
-    [leafletOptions]="options"
-    (leafletMapReady)="onMapReady(\$any(\$event))">
-  </div>
-</div>
-EOF
-
-# 3. Mise à jour du CSS (Styles des filtres)
+# 2. Mise à jour du CSS pour gérer le texte (Nom de ville)
 echo "🎨 Mise à jour de src/app/app.css..."
 cat <<EOF > src/app/app.css
 /* Layout Principal */
@@ -333,7 +282,7 @@ cat <<EOF > src/app/app.css
   z-index: 1;
 }
 
-/* Contrôles Flottants */
+/* Contrôles */
 .map-controls {
   position: absolute;
   top: 20px;
@@ -347,98 +296,76 @@ cat <<EOF > src/app/app.css
   min-width: 250px;
   max-width: 300px;
 }
+.main-select select { width: 100%; padding: 6px; margin-top: 5px; }
 
-.main-select select {
-  width: 100%;
-  padding: 6px;
-  margin-top: 5px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
+/* Filtres */
+.filter-container { margin-top: 10px; animation: fadeIn 0.3s ease-in-out; }
+.filter-header { display: flex; justify-content: space-between; margin-bottom: 10px; color: #28a745; }
+.toggle-btn { background: none; border: none; color: #007bff; font-size: 11px; cursor: pointer; text-decoration: underline; }
+.filter-group { margin-bottom: 8px; }
+.filter-group label { display: block; font-size: 12px; color: #555; }
+.filter-group select { width: 100%; padding: 4px; }
+.reset-btn { width: 100%; padding: 6px; margin-top: 5px; background-color: #f8f9fa; border: 1px solid #ddd; cursor: pointer; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Zone Filtres */
-.filter-container {
-  margin-top: 10px;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-.filter-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-  color: #28a745; /* Vert Budget */
-}
-
-.toggle-btn {
-  background: none;
-  border: none;
-  color: #007bff;
-  font-size: 11px;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.filter-group {
-  margin-bottom: 8px;
-}
-
-.filter-group label {
-  display: block;
-  font-size: 12px;
-  color: #555;
-  margin-bottom: 2px;
-}
-
-.filter-group select {
-  width: 100%;
-  padding: 4px;
-  font-size: 13px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.reset-btn {
-  width: 100%;
-  padding: 6px;
-  background-color: #f8f9fa;
-  border: 1px solid #ddd;
-  color: #333;
-  cursor: pointer;
-  border-radius: 4px;
-  margin-top: 5px;
-}
-.reset-btn:hover { background-color: #e2e6ea; }
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Cluster Vert */
+/* --- CLUSTER BUDGET --- */
 ::ng-deep .budget-cluster-icon {
   background-color: rgba(40, 167, 69, 0.95);
-  border: 3px solid white;
+  border: 2px solid white;
   border-radius: 50%;
   color: white;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 90px;
-  height: 90px;
+  /* Augmentation de la taille pour le texte */
+  width: 100px; 
+  height: 100px; 
   box-shadow: 0 5px 15px rgba(0,0,0,0.4);
   text-align: center;
   cursor: pointer;
   transition: transform 0.2s;
+  padding: 5px; /* Padding interne */
+  overflow: hidden;
 }
+
 ::ng-deep .budget-cluster-icon:hover {
   background-color: #218838;
   transform: scale(1.1);
   z-index: 9999;
 }
-::ng-deep .budget-cluster-icon span { font-weight: bold; font-size: 12px; }
-::ng-deep .budget-cluster-icon small { font-size: 10px; font-weight: normal; }
+
+/* Montant */
+::ng-deep .budget-cluster-icon .amount {
+  font-weight: bold;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+/* Nom Géographique (Gouvernorat/Municipalité) */
+::ng-deep .budget-cluster-icon .location {
+  font-size: 10px;
+  font-weight: bold;
+  color: #d4edda; /* Vert très clair */
+  margin-top: 2px;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90%;
+}
+
+::ng-deep .budget-cluster-icon small {
+  font-size: 9px;
+  opacity: 0.8;
+  font-weight: normal;
+}
+
+/* Variation de couleur subtile si c'est une municipalité précise */
+::ng-deep .budget-cluster-icon.municipalite {
+  background-color: rgba(30, 126, 52, 0.95); /* Vert plus foncé */
+  border-color: #c3e6cb;
+}
 EOF
 
-echo "✅ Filtres ajoutés ! Relancez 'ng serve' et choisissez 'Budget 2021'."
+echo "✅ Catégories mises à jour et affichage géographique activé !"

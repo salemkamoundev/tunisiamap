@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms'; // <--- Requis pour [(ngModel)]
+import { FormsModule } from '@angular/forms'; 
 import { LeafletModule } from '@bluehalo/ngx-leaflet'; 
 
 import * as L from 'leaflet';
@@ -11,7 +11,7 @@ import { MapDataService } from './services/map-data.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, LeafletModule, HttpClientModule, FormsModule], // Ajout FormsModule
+  imports: [CommonModule, LeafletModule, HttpClientModule, FormsModule],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
   providers: [MapDataService]
@@ -20,20 +20,22 @@ export class App {
   map!: L.Map;
   currentLayer: any = null;
 
-categories: string[] = [ 'Stade', 'Lycée', 'Maison des Jeunes', 'Poste', 'Université', 'École', 'Budget 2021' ];
+  // --- NOUVELLE LISTE DES CATÉGORIES ---
+  categories: string[] = [ 
+    'Hôpital',
+    'Stade', 
+    'Université', 
+    'École', 
+    'Budget 2021'
+  ];
 
-  // --- Propriétés pour les Filtres Budget ---
-  isBudgetActive: boolean = false;      // Est-ce que la catégorie Budget est choisie ?
-  filtersVisible: boolean = true;       // Est-ce que le panneau filtre est déplié ?
-  
-  allBudgetData: any[] = [];            // Toutes les données brutes
-  filteredBudgetData: any[] = [];       // Données filtrées affichées
-
-  // Listes pour les dropdowns
+  // Variables Filtres
+  isBudgetActive: boolean = false;
+  filtersVisible: boolean = true;
+  allBudgetData: any[] = [];
+  filteredBudgetData: any[] = [];
   listGouvernorats: string[] = [];
   listMunicipalites: string[] = [];
-
-  // Valeurs sélectionnées
   selectedGov: string = '';
   selectedMun: string = '';
 
@@ -52,111 +54,116 @@ categories: string[] = [ 'Stade', 'Lycée', 'Maison des Jeunes', 'Poste', 'Unive
 
   onMapReady(map: L.Map) {
     this.map = map;
-    this.loadStandardData('Toutes');
+    // Charge la première catégorie par défaut (Stade) ou 'Toutes' si vous préférez
+    // Ici on ne charge rien au début ou une catégorie par défaut
+    // this.loadStandardData('Stade'); 
   }
 
   onCategoryChange(event: any) {
     const selectedCat = event.target.value;
     
-    // Reset de l'état des filtres
     this.isBudgetActive = (selectedCat === 'Budget 2021');
     
-    // Nettoyage carte
     if (this.currentLayer && this.map) {
       this.map.removeLayer(this.currentLayer);
       this.currentLayer = null;
     }
 
     if (this.isBudgetActive) {
-      // Chargement initial des données Budget
       this.loadBudgetData();
     } else {
       this.loadStandardData(selectedCat);
     }
   }
 
-  // --- GESTION DU BUDGET 2021 ---
-
+  // --- LOGIQUE BUDGET 2021 AVEC NOMS GÉOGRAPHIQUES ---
   loadBudgetData() {
     this.mapService.getBudget2021().subscribe({
       next: (data) => {
-        // 1. Sauvegarde des données brutes
         this.allBudgetData = data;
-        
-        // 2. Extraction des filtres (Gouvernorats uniques, etc.)
         this.extractFilterOptions();
-
-        // 3. Application par défaut (tout afficher)
-        this.applyBudgetFilters();
+        this.applyBudgetFilters(); // Lance l'affichage
       },
       error: (err) => console.error('Erreur Budget:', err)
     });
   }
 
-  // Extrait les listes uniques pour les Select
   extractFilterOptions() {
-    // Récupérer les Gouvernorats uniques
     const govs = this.allBudgetData.map(item => item.Nom_Gouvernorat_Ar).filter(Boolean);
     this.listGouvernorats = [...new Set(govs)].sort();
-
-    // On charge toutes les municipalités au début
     const muns = this.allBudgetData.map(item => item.Nom_Municipalite_Ar).filter(Boolean);
     this.listMunicipalites = [...new Set(muns)].sort();
   }
 
-  // Appelé quand l'utilisateur change un filtre
   applyBudgetFilters() {
-    // 1. Filtrer les données
     this.filteredBudgetData = this.allBudgetData.filter(item => {
       const matchGov = this.selectedGov ? item.Nom_Gouvernorat_Ar === this.selectedGov : true;
       const matchMun = this.selectedMun ? item.Nom_Municipalite_Ar === this.selectedMun : true;
       return matchGov && matchMun;
     });
-
-    // 2. Si un gouvernorat est choisi, on pourrait filtrer la liste des municipalités ici (optionnel)
-    // Pour l'instant on garde simple.
-
-    // 3. Dessiner la carte avec les données filtrées
     this.renderBudgetLayer(this.filteredBudgetData);
   }
 
-  // Réinitialiser les filtres
   resetFilters() {
     this.selectedGov = '';
     this.selectedMun = '';
     this.applyBudgetFilters();
   }
 
-  // Dessine le Cluster Vert (réutilisé pour filtrage)
   renderBudgetLayer(data: any[]) {
-    // Nettoyage préventif si on rafraîchit
     if (this.currentLayer && this.map) {
       this.map.removeLayer(this.currentLayer);
     }
 
     const budgetCluster = L.markerClusterGroup({
-      maxClusterRadius: 60,
+      maxClusterRadius: 80, // Légèrement augmenté pour grouper plus large
       iconCreateFunction: (cluster) => {
         const markers = cluster.getAllChildMarkers();
         let totalPrevision = 0;
+        
+        // Sets pour détecter l'unicité des lieux
+        const govs = new Set();
+        const muns = new Set();
 
         markers.forEach((marker: any) => {
+          // Somme
           if (marker.options.previsionAmount) {
             totalPrevision += marker.options.previsionAmount;
           }
+          // Collecte des noms géographiques attachés au marker
+          if (marker.options.govName) govs.add(marker.options.govName);
+          if (marker.options.munName) muns.add(marker.options.munName);
         });
+
+        // --- Logique de détermination du Nom ---
+        let locationLabel = 'Zones Multiples'; // Par défaut
+        let locationClass = 'mixed';
+
+        if (muns.size === 1) {
+          // Si une seule municipalité dans tout le cluster
+          locationLabel = [...muns][0] as string;
+          locationClass = 'municipalite';
+        } else if (govs.size === 1) {
+          // Si plusieurs municipalités mais un seul Gouvernorat
+          locationLabel = [...govs][0] as string;
+          locationClass = 'gouvernorat';
+        } else {
+            // Mélange de gouvernorats (ex: frontière Tunis/Ariana)
+            locationLabel = 'Divers';
+        }
 
         const formattedSum = new Intl.NumberFormat('fr-TN', { 
           style: 'currency', currency: 'TND', maximumFractionDigits: 0 
         }).format(totalPrevision);
 
         return L.divIcon({
-          html: `<div class="budget-cluster-icon">
-                   <span>${formattedSum}</span>
-                   <small>(${markers.length} mun.)</small>
+          html: `<div class="budget-cluster-icon ${locationClass}">
+                   <span class="amount">${formattedSum}</span>
+                   <span class="location">${locationLabel}</span>
+                   <small>(${markers.length} projets)</small>
                  </div>`,
           className: 'budget-cluster',
-          iconSize: L.point(90, 90)
+          iconSize: L.point(100, 100) // Agrandir un peu pour le texte
         });
       }
     });
@@ -175,7 +182,12 @@ categories: string[] = [ 'Stade', 'Lycée', 'Maison des Jeunes', 'Poste', 'Unive
             iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
           })
         });
+        
+        // ATTACHEMENT DES DONNÉES AU MARKER (Crucial pour le cluster)
         (marker.options as any)['previsionAmount'] = valPrevision;
+        (marker.options as any)['govName'] = item.Nom_Gouvernorat_Ar;
+        (marker.options as any)['munName'] = item.Nom_Municipalite_Ar;
+
         marker.bindPopup(this.generateFullPopup(item));
         budgetCluster.addLayer(marker);
       }
@@ -190,7 +202,6 @@ categories: string[] = [ 'Stade', 'Lycée', 'Maison des Jeunes', 'Poste', 'Unive
     }
   }
 
-  // --- LOGIQUE STANDARD ---
   loadStandardData(category: string) {
     this.mapService.getLocations().subscribe({
       next: (locations) => {
@@ -215,7 +226,6 @@ categories: string[] = [ 'Stade', 'Lycée', 'Maison des Jeunes', 'Poste', 'Unive
         }
         this.currentLayer = standardCluster;
         this.map.addLayer(this.currentLayer);
-        
         if(filtered && filtered.length > 0) {
            const bounds = standardCluster.getBounds();
            if(bounds.isValid()) this.map.fitBounds(bounds);
