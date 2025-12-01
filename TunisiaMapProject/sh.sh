@@ -1,33 +1,14 @@
 #!/bin/bash
 
-echo "🔄 Restauration du regroupement (Clustering) et correction des styles..."
+echo "🚑 Réparation de l'affichage de toutes les catégories..."
 
-# 1. MISE À JOUR DU CSS GLOBAL (styles.css)
-# C'est INDISPENSABLE pour que les clusters s'affichent
-echo "🎨 Ajout des styles MarkerCluster dans src/styles.css..."
-mkdir -p src
-touch src/styles.css
-
-# On vérifie si l'import existe déjà pour éviter les doublons
-if ! grep -q "MarkerCluster.css" src/styles.css; then
-  cat <<EOF >> src/styles.css
-
-/* Imports Leaflet MarkerCluster (Requis pour le regroupement) */
-@import "leaflet.markercluster/dist/MarkerCluster.css";
-@import "leaflet.markercluster/dist/MarkerCluster.Default.css";
-@import "leaflet/dist/leaflet.css";
-EOF
-fi
-
-# 2. CORRECTION DE LA LOGIQUE (app.ts)
-# On remplace layerGroup par markerClusterGroup partout et on corrige le bug "Toutes"
-echo "💻 Réécriture de src/app/app.ts avec regroupement actif..."
+# 1. Réécriture de src/app/app.ts avec la logique corrigée
+echo "💻 Mise à jour de src/app/app.ts..."
 cat <<EOF > src/app/app.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { HttpClientModule } from '@angular/common/http';
 import { LeafletModule } from '@bluehalo/ngx-leaflet'; 
-// import { LeafletModule } from 'ngx-leaflet'; // Décommentez si besoin
 
 import * as L from 'leaflet';
 import 'leaflet.markercluster'; 
@@ -69,12 +50,14 @@ export class App {
 
   onMapReady(map: L.Map) {
     this.map = map;
+    // Charge 'Toutes' au démarrage
     this.loadStandardData('Toutes');
   }
 
   onCategoryChange(event: any) {
     const selectedCat = event.target.value;
     
+    // Nettoyage du calque précédent
     if (this.currentLayer && this.map) {
       this.map.removeLayer(this.currentLayer);
       this.currentLayer = null;
@@ -87,12 +70,13 @@ export class App {
     }
   }
 
-  // --- 1. CLUSTER BUDGET (Icône Verte + Somme) ---
+  // --- 1. LOGIQUE SPÉCIALE BUDGET 2021 (Somme + Popup Complet) ---
   loadBudgetData() {
     this.mapService.getBudget2021().subscribe({
       next: (data) => {
         const budgetCluster = L.markerClusterGroup({
           maxClusterRadius: 60,
+          // Icône personnalisée avec la SOMME
           iconCreateFunction: (cluster) => {
             const markers = cluster.getAllChildMarkers();
             let totalPrevision = 0;
@@ -150,34 +134,38 @@ export class App {
     });
   }
 
-  // --- 2. CLUSTER STANDARD (Icône par défaut) ---
+  // --- 2. LOGIQUE STANDARD (Clustering par défaut) ---
   loadStandardData(category: string) {
     this.mapService.getLocations().subscribe({
       next: (locations) => {
-        // Correction du BUG : Si 'Toutes', on prend tout, sinon on filtre
+        // CORRECTION MAJEURE ICI : Si 'Toutes', on prend tout le tableau locations
         const filtered = category === 'Toutes' 
           ? locations 
           : locations.filter(l => l.categorie === category);
 
-        // MODIFICATION : Utilisation de markerClusterGroup au lieu de layerGroup
+        // On utilise MarkerClusterGroup pour avoir le regroupement standard (bleu/jaune/rouge)
         const standardCluster = L.markerClusterGroup();
 
-        if (filtered) {
-          filtered.forEach(loc => {
-            const marker = L.marker([loc.lat, loc.lng], {
-              icon: L.icon({
-                iconUrl: 'assets/marker-icon.png',
-                shadowUrl: 'assets/marker-shadow.png',
-                iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
-              })
-            });
-            marker.bindPopup(\`<b>\${loc.nom}</b><br>\${loc.categorie}\`);
-            standardCluster.addLayer(marker);
+        filtered.forEach(loc => {
+          const marker = L.marker([loc.lat, loc.lng], {
+            icon: L.icon({
+              iconUrl: 'assets/marker-icon.png',
+              shadowUrl: 'assets/marker-shadow.png',
+              iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
+            })
           });
-        }
+          marker.bindPopup(\`<b>\${loc.nom}</b><br>\${loc.categorie}\`);
+          standardCluster.addLayer(marker);
+        });
 
         this.currentLayer = standardCluster;
         this.map.addLayer(this.currentLayer);
+
+        // Zoom automatique pour voir les points
+        if (filtered.length > 0) {
+            const bounds = standardCluster.getBounds();
+            if (bounds.isValid()) this.map.fitBounds(bounds);
+        }
       },
       error: (err) => console.error('Erreur Standard:', err)
     });
@@ -187,10 +175,9 @@ export class App {
     let rows = '';
     for (const key in data) {
       if (data.hasOwnProperty(key) && key !== 'lat' && key !== 'lng') {
-         const label = key;
          rows += \`
           <tr>
-            <td style="font-weight:bold; color:#555; padding:3px; border-bottom:1px solid #eee;">\${label}</td>
+            <td style="font-weight:bold; color:#555; padding:3px; border-bottom:1px solid #eee;">\${key}</td>
             <td style="padding:3px; border-bottom:1px solid #eee;">\${data[key]}</td>
           </tr>\`;
       }
@@ -203,4 +190,13 @@ export class App {
 }
 EOF
 
-echo "✅ Script terminé : Styles CSS ajoutés et regroupement activé pour toutes les catégories."
+# 2. Assurance du CSS MarkerCluster (Au cas où)
+echo "🎨 Vérification des styles..."
+if ! grep -q "MarkerCluster.css" src/styles.css; then
+  cat <<EOF >> src/styles.css
+@import "leaflet.markercluster/dist/MarkerCluster.css";
+@import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+EOF
+fi
+
+echo "✅ Correction appliquée. Relancez 'ng serve'."

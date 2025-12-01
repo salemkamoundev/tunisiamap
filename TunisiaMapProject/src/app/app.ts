@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { HttpClientModule } from '@angular/common/http';
 import { LeafletModule } from '@bluehalo/ngx-leaflet'; 
-// import { LeafletModule } from 'ngx-leaflet'; // Décommentez si besoin
+// import { LeafletModule } from 'ngx-leaflet'; // Décommentez si @bluehalo ne marche pas
 
 import * as L from 'leaflet';
 import 'leaflet.markercluster'; 
@@ -20,12 +20,14 @@ export class App {
   map!: L.Map;
   currentLayer: any = null;
 
+  // Définition explicite des catégories pour le menu
   categories: string[] = [
-    'Toutes',
+    'Stade',
     'Lycée',
     'Maison des Jeunes',
     'Poste',
-    'Ministère',
+    'Université',
+    'École',
     'Budget 2021'
   ];
 
@@ -44,12 +46,13 @@ export class App {
 
   onMapReady(map: L.Map) {
     this.map = map;
-    this.loadStandardData('Toutes');
+    this.loadStandardData('Stade');
   }
 
   onCategoryChange(event: any) {
     const selectedCat = event.target.value;
     
+    // Nettoyage du calque précédent
     if (this.currentLayer && this.map) {
       this.map.removeLayer(this.currentLayer);
       this.currentLayer = null;
@@ -62,22 +65,25 @@ export class App {
     }
   }
 
-  // --- 1. CLUSTER BUDGET (Icône Verte + Somme) ---
+  // --- LOGIQUE BUDGET 2021 (Somme Prévision + Popup Complet) ---
   loadBudgetData() {
     this.mapService.getBudget2021().subscribe({
       next: (data) => {
         const budgetCluster = L.markerClusterGroup({
           maxClusterRadius: 60,
+          // Création de l'icône du cluster avec la SOMME
           iconCreateFunction: (cluster) => {
             const markers = cluster.getAllChildMarkers();
             let totalPrevision = 0;
 
+            // Addition des montants stockés dans les options des marqueurs
             markers.forEach((marker: any) => {
               if (marker.options.previsionAmount) {
                 totalPrevision += marker.options.previsionAmount;
               }
             });
 
+            // Formatage (Ex: 1 200 TND)
             const formattedSum = new Intl.NumberFormat('fr-TN', { 
               style: 'currency', currency: 'TND', maximumFractionDigits: 0 
             }).format(totalPrevision);
@@ -96,6 +102,8 @@ export class App {
         data.forEach(item => {
           const lat = parseFloat(item.lat);
           const lng = parseFloat(item.lng);
+
+          // Nettoyage et parsing de 'depenses_prevision'
           const rawPrevision = item.depenses_prevision ? String(item.depenses_prevision) : '0';
           const valPrevision = parseFloat(rawPrevision.replace(/\s/g, '').replace(',', '.'));
 
@@ -107,7 +115,11 @@ export class App {
                 iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
               })
             });
+
+            // On stocke la valeur pour le calcul du cluster
             (marker.options as any)['previsionAmount'] = valPrevision;
+
+            // Popup : Tous les champs
             marker.bindPopup(this.generateFullPopup(item));
             budgetCluster.addLayer(marker);
           }
@@ -125,44 +137,37 @@ export class App {
     });
   }
 
-  // --- 2. CLUSTER STANDARD (Icône par défaut) ---
   loadStandardData(category: string) {
     this.mapService.getLocations().subscribe({
       next: (locations) => {
-        // Correction du BUG : Si 'Toutes', on prend tout, sinon on filtre
-        const filtered = category === 'Toutes' 
-          ? locations 
-          : locations.filter(l => l.categorie === category);
+        const filtered = category === 'Toutes' ? locations : locations.filter(l => l.categorie === category);
+        const layerGroup = L.layerGroup();
 
-        // MODIFICATION : Utilisation de markerClusterGroup au lieu de layerGroup
-        const standardCluster = L.markerClusterGroup();
-
-        if (filtered) {
-          filtered.forEach(loc => {
-            const marker = L.marker([loc.lat, loc.lng], {
-              icon: L.icon({
-                iconUrl: 'assets/marker-icon.png',
-                shadowUrl: 'assets/marker-shadow.png',
-                iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
-              })
-            });
-            marker.bindPopup(`<b>${loc.nom}</b><br>${loc.categorie}`);
-            standardCluster.addLayer(marker);
+        filtered.forEach(loc => {
+          const marker = L.marker([loc.lat, loc.lng], {
+            icon: L.icon({
+               iconUrl: 'assets/marker-icon.png',
+               shadowUrl: 'assets/marker-shadow.png',
+               iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
+            })
           });
-        }
+          marker.bindPopup(`<b>${loc.nom}</b><br>${loc.categorie}`);
+          layerGroup.addLayer(marker);
+        });
 
-        this.currentLayer = standardCluster;
+        this.currentLayer = layerGroup;
         this.map.addLayer(this.currentLayer);
-      },
-      error: (err) => console.error('Erreur Standard:', err)
+      }
     });
   }
 
+  // Génère un tableau HTML pour TOUTES les propriétés du JSON
   generateFullPopup(data: any): string {
     let rows = '';
     for (const key in data) {
       if (data.hasOwnProperty(key) && key !== 'lat' && key !== 'lng') {
-         const label = key;
+         // Petite mise en forme pour le libellé
+         const label = key; 
          rows += `
           <tr>
             <td style="font-weight:bold; color:#555; padding:3px; border-bottom:1px solid #eee;">${label}</td>

@@ -23,6 +23,7 @@ export class AppComponent {
 
   // Liste des catégories en dur pour garantir l'affichage
   categories: string[] = [
+    'Stade',
     'Lycée',
     'Maison des Jeunes',
     'Poste',
