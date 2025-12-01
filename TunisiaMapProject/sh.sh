@@ -1,10 +1,26 @@
 #!/bin/bash
 
-echo "🚀 Mise à jour : Catégories + Affichage des noms de zones dans les clusters..."
+echo "🚑 Rétablissement complet du projet (Filtres, Clusters, Catégories)..."
 
-# 1. Mise à jour de src/app/app.ts
-echo "💻 Réécriture de src/app/app.ts..."
-cat <<EOF > src/app/app.ts
+# 1. CSS : Restauration des imports Leaflet et Styles Filtres
+echo "🎨 Restauration de src/styles.css..."
+mkdir -p src
+# On s'assure que le fichier existe
+touch src/styles.css
+# On ajoute les imports MarkerCluster s'ils manquent
+if ! grep -q "MarkerCluster.Default.css" src/styles.css; then
+  cat <<EOF >> src/styles.css
+
+/* Imports Leaflet MarkerCluster requis pour le regroupement */
+@import "leaflet.markercluster/dist/MarkerCluster.css";
+@import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+@import "leaflet/dist/leaflet.css";
+EOF
+fi
+
+# 2. TypeScript : Fusion de la logique avancée dans AppComponent
+echo "💻 Reconstruction de src/app/app.component.ts..."
+cat <<EOF > src/app/app.component.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { HttpClientModule } from '@angular/common/http';
@@ -19,15 +35,15 @@ import { MapDataService } from './services/map-data.service';
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule, LeafletModule, HttpClientModule, FormsModule],
-  templateUrl: './app.html',
-  styleUrls: ['./app.css'],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css'],
   providers: [MapDataService]
 })
-export class App {
+export class AppComponent {
   map!: L.Map;
   currentLayer: any = null;
 
-  // --- NOUVELLE LISTE DES CATÉGORIES ---
+  // Liste complète de vos catégories
   categories: string[] = [ 
     'Stade', 
     'Lycée', 
@@ -38,13 +54,16 @@ export class App {
     'Budget 2021' 
   ];
 
-  // Variables Filtres
+  // Variables pour les Filtres (Budget)
   isBudgetActive: boolean = false;
   filtersVisible: boolean = true;
+  
   allBudgetData: any[] = [];
   filteredBudgetData: any[] = [];
+  
   listGouvernorats: string[] = [];
   listMunicipalites: string[] = [];
+  
   selectedGov: string = '';
   selectedMun: string = '';
 
@@ -63,16 +82,15 @@ export class App {
 
   onMapReady(map: L.Map) {
     this.map = map;
-    // Charge la première catégorie par défaut (Stade) ou 'Toutes' si vous préférez
-    // Ici on ne charge rien au début ou une catégorie par défaut
-    // this.loadStandardData('Stade'); 
+    // Charge par défaut
+    this.loadStandardData('Toutes');
   }
 
   onCategoryChange(event: any) {
     const selectedCat = event.target.value;
     
     this.isBudgetActive = (selectedCat === 'Budget 2021');
-    
+
     if (this.currentLayer && this.map) {
       this.map.removeLayer(this.currentLayer);
       this.currentLayer = null;
@@ -85,13 +103,13 @@ export class App {
     }
   }
 
-  // --- LOGIQUE BUDGET 2021 AVEC NOMS GÉOGRAPHIQUES ---
+  // --- LOGIQUE BUDGET (Filtres + Clusters Intelligents) ---
   loadBudgetData() {
     this.mapService.getBudget2021().subscribe({
       next: (data) => {
         this.allBudgetData = data;
         this.extractFilterOptions();
-        this.applyBudgetFilters(); // Lance l'affichage
+        this.applyBudgetFilters();
       },
       error: (err) => console.error('Erreur Budget:', err)
     });
@@ -125,40 +143,34 @@ export class App {
     }
 
     const budgetCluster = L.markerClusterGroup({
-      maxClusterRadius: 80, // Légèrement augmenté pour grouper plus large
+      maxClusterRadius: 80,
       iconCreateFunction: (cluster) => {
         const markers = cluster.getAllChildMarkers();
         let totalPrevision = 0;
         
-        // Sets pour détecter l'unicité des lieux
         const govs = new Set();
         const muns = new Set();
 
         markers.forEach((marker: any) => {
-          // Somme
           if (marker.options.previsionAmount) {
             totalPrevision += marker.options.previsionAmount;
           }
-          // Collecte des noms géographiques attachés au marker
           if (marker.options.govName) govs.add(marker.options.govName);
           if (marker.options.munName) muns.add(marker.options.munName);
         });
 
-        // --- Logique de détermination du Nom ---
-        let locationLabel = 'Zones Multiples'; // Par défaut
+        // Logique d'affichage du nom de la zone
+        let locationLabel = 'Zones Multiples';
         let locationClass = 'mixed';
 
         if (muns.size === 1) {
-          // Si une seule municipalité dans tout le cluster
           locationLabel = [...muns][0] as string;
           locationClass = 'municipalite';
         } else if (govs.size === 1) {
-          // Si plusieurs municipalités mais un seul Gouvernorat
           locationLabel = [...govs][0] as string;
           locationClass = 'gouvernorat';
         } else {
-            // Mélange de gouvernorats (ex: frontière Tunis/Ariana)
-            locationLabel = 'Divers';
+          locationLabel = 'Divers';
         }
 
         const formattedSum = new Intl.NumberFormat('fr-TN', { 
@@ -172,7 +184,7 @@ export class App {
                    <small>(\${markers.length} projets)</small>
                  </div>\`,
           className: 'budget-cluster',
-          iconSize: L.point(100, 100) // Agrandir un peu pour le texte
+          iconSize: L.point(100, 100)
         });
       }
     });
@@ -192,7 +204,6 @@ export class App {
           })
         });
         
-        // ATTACHEMENT DES DONNÉES AU MARKER (Crucial pour le cluster)
         (marker.options as any)['previsionAmount'] = valPrevision;
         (marker.options as any)['govName'] = item.Nom_Gouvernorat_Ar;
         (marker.options as any)['munName'] = item.Nom_Municipalite_Ar;
@@ -211,13 +222,16 @@ export class App {
     }
   }
 
+  // --- LOGIQUE STANDARD (Clustering simple) ---
   loadStandardData(category: string) {
     this.mapService.getLocations().subscribe({
       next: (locations) => {
+        // Correction du bug "Toutes"
         const filtered = category === 'Toutes' 
           ? locations 
           : locations.filter(l => l.categorie === category);
 
+        // Activation du regroupement standard
         const standardCluster = L.markerClusterGroup();
 
         if (filtered) {
@@ -235,7 +249,8 @@ export class App {
         }
         this.currentLayer = standardCluster;
         this.map.addLayer(this.currentLayer);
-        if(filtered && filtered.length > 0) {
+        
+        if (filtered && filtered.length > 0) {
            const bounds = standardCluster.getBounds();
            if(bounds.isValid()) this.map.fitBounds(bounds);
         }
@@ -263,9 +278,65 @@ export class App {
 }
 EOF
 
-# 2. Mise à jour du CSS pour gérer le texte (Nom de ville)
-echo "🎨 Mise à jour de src/app/app.css..."
-cat <<EOF > src/app/app.css
+# 3. HTML : Interface avec Panneau de Filtres
+echo "📄 Reconstruction de src/app/app.component.html..."
+cat <<EOF > src/app/app.component.html
+<div class="map-container">
+  
+  <div class="map-controls">
+    <div class="main-select">
+      <label><strong>Catégorie :</strong></label>
+      <select (change)="onCategoryChange(\$any(\$event))">
+        <option *ngFor="let cat of categories" [value]="cat">
+          {{ cat }}
+        </option>
+      </select>
+    </div>
+
+    <div *ngIf="isBudgetActive" class="filter-container">
+      <hr>
+      <div class="filter-header">
+        <strong>Filtres Budget</strong>
+        <button class="toggle-btn" (click)="filtersVisible = !filtersVisible">
+          {{ filtersVisible ? 'Masquer' : 'Afficher' }}
+        </button>
+      </div>
+
+      <div *ngIf="filtersVisible" class="filter-body">
+        
+        <div class="filter-group">
+          <label>Gouvernorat :</label>
+          <select [(ngModel)]="selectedGov" (change)="applyBudgetFilters()">
+            <option value="">(Tous)</option>
+            <option *ngFor="let g of listGouvernorats" [value]="g">{{ g }}</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Municipalité :</label>
+          <select [(ngModel)]="selectedMun" (change)="applyBudgetFilters()">
+            <option value="">(Toutes)</option>
+            <option *ngFor="let m of listMunicipalites" [value]="m">{{ m }}</option>
+          </select>
+        </div>
+
+        <button class="reset-btn" (click)="resetFilters()">Réinitialiser</button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    id="map"
+    leaflet
+    [leafletOptions]="options"
+    (leafletMapReady)="onMapReady(\$any(\$event))">
+  </div>
+</div>
+EOF
+
+# 4. CSS : Styles Complets (Filtres + Bulles Vertes avec Noms)
+echo "🎨 Reconstruction de src/app/app.component.css..."
+cat <<EOF > src/app/app.component.css
 /* Layout Principal */
 .map-container {
   position: relative;
@@ -318,14 +389,13 @@ cat <<EOF > src/app/app.css
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  /* Augmentation de la taille pour le texte */
   width: 100px; 
   height: 100px; 
   box-shadow: 0 5px 15px rgba(0,0,0,0.4);
   text-align: center;
   cursor: pointer;
   transition: transform 0.2s;
-  padding: 5px; /* Padding interne */
+  padding: 5px;
   overflow: hidden;
 }
 
@@ -363,9 +433,10 @@ cat <<EOF > src/app/app.css
 
 /* Variation de couleur subtile si c'est une municipalité précise */
 ::ng-deep .budget-cluster-icon.municipalite {
-  background-color: rgba(30, 126, 52, 0.95); /* Vert plus foncé */
+  background-color: rgba(30, 126, 52, 0.95);
   border-color: #c3e6cb;
 }
 EOF
 
-echo "✅ Catégories mises à jour et affichage géographique activé !"
+echo "✅ Projet restauré avec succès !"
+echo "👉 Lancez 'ng serve' pour voir le résultat."

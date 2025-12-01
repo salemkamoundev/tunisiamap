@@ -21,13 +21,7 @@ export class App {
   currentLayer: any = null;
 
   // --- NOUVELLE LISTE DES CATÉGORIES ---
-  categories: string[] = [ 
-    'Hôpital',
-    'Stade', 
-    'Université', 
-    'École', 
-    'Budget 2021'
-  ];
+categories: string[] = [ 'Stade', 'Lycée', 'Maison des Jeunes', 'Poste', 'Université', 'École', 'Budget 2021' ];
 
   // Variables Filtres
   isBudgetActive: boolean = false;
