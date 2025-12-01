@@ -1,0 +1,119 @@
+import { Component } from '@angular/core';
+import { NgxLeafletModule } from 'ngx-leaflet';
+import * as L from 'leaflet';
+import 'leaflet.markercluster';
+import { MapDataService, BudgetLocation } from './services/map-data.service';
+import { HttpClientModule } from '@angular/common/http';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [NgxLeafletModule, HttpClientModule],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css'],
+  providers: [MapDataService]
+})
+export class AppComponent {
+  map!: L.Map;
+
+  options = {
+    layers: [
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '&copy; OpenStreetMap contributors'
+      })
+    ],
+    zoom: 13,
+    center: L.latLng(36.8065, 10.1815)
+  };
+
+  constructor(private mapService: MapDataService) {}
+
+  onMapReady(map: L.Map) {
+    this.map = map;
+    console.log('🗺️ Carte prête, chargement du budget...');
+    this.loadBudgetData();
+  }
+
+  loadBudgetData() {
+    this.mapService.getBudget2021().subscribe((data) => {
+      const budgetCluster = L.markerClusterGroup({
+        iconCreateFunction: (cluster) => {
+          const markers = cluster.getAllChildMarkers();
+          let totalSomme = 0;
+
+          markers.forEach((marker: any) => {
+            if (marker.options.budgetAmount) {
+              totalSomme += marker.options.budgetAmount;
+            }
+          });
+
+          const formattedSum = new Intl.NumberFormat('fr-TN', { 
+            style: 'currency', 
+            currency: 'TND',
+            maximumFractionDigits: 0 
+          }).format(totalSomme);
+
+          return L.divIcon({
+            html: `<div class="budget-cluster-icon">
+                     <span>${formattedSum}</span>
+                     <small>(${markers.length} mun.)</small>
+                   </div>`,
+            className: 'budget-cluster',
+            iconSize: L.point(80, 80)
+          });
+        }
+      });
+
+      data.forEach(item => {
+        const lat = parseFloat(item.lat);
+        const lng = parseFloat(item.lng);
+        const cleanAmount = item.depenses_realisation 
+          ? parseFloat(item.depenses_realisation.replace(/\s/g, '').replace(',', '.')) 
+          : 0;
+
+        if (!isNaN(lat) && !isNaN(lng)) {
+          const marker = L.marker([lat, lng], {
+            icon: L.icon({
+              iconUrl: 'assets/marker-icon.png',
+              shadowUrl: 'assets/marker-shadow.png',
+              iconSize: [25, 41],
+              iconAnchor: [12, 41]
+            }),
+            // @ts-ignore
+            budgetAmount: cleanAmount 
+          });
+
+          const popupContent = this.generatePopupTable(item);
+          marker.bindPopup(popupContent);
+          budgetCluster.addLayer(marker);
+        }
+      });
+
+      this.map.addLayer(budgetCluster);
+    });
+  }
+
+  generatePopupTable(data: any): string {
+    let rows = '';
+    for (const key in data) {
+      if (data.hasOwnProperty(key)) {
+        const label = key.replace(/_/g, ' '); 
+        rows += `
+          <tr>
+            <td style="font-weight:bold; padding: 2px 5px; border-bottom:1px solid #eee;">${label}</td>
+            <td style="padding: 2px 5px; border-bottom:1px solid #eee;">${data[key]}</td>
+          </tr>
+        `;
+      }
+    }
+    return `
+      <div style="max-height: 200px; overflow-y: auto;">
+        <h3 style="margin: 0 0 10px 0; color: #007bff;">Détails Budget</h3>
+        <table style="width:100%; border-collapse: collapse; font-size: 12px;">
+          ${rows}
+        </table>
+      </div>
+    `;
+  }
+}

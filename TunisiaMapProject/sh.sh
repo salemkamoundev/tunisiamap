@@ -1,50 +1,206 @@
 #!/bin/bash
 
-# 1. Création du fichier source temporaire avec tes données
-# (On colle ton JSON ici pour l'exemple, mais tu peux aussi lire un fichier externe)
+echo "🔄 Restauration du regroupement (Clustering) et correction des styles..."
 
-# 2. Traitement avec jq
-# On injecte une map des coordonnées GPS des gouvernorats
-# On extrait le tableau "universites"
-# On ajoute les champs pour chaque entrée
+# 1. MISE À JOUR DU CSS GLOBAL (styles.css)
+# C'est INDISPENSABLE pour que les clusters s'affichent
+echo "🎨 Ajout des styles MarkerCluster dans src/styles.css..."
+mkdir -p src
+touch src/styles.css
 
-jq '
-  # Dictionnaire des coordonnées approximatives des Gouvernorats
-  {
-    "Tunis":     {lat: 36.8065, lng: 10.1815},
-    "Ariana":    {lat: 36.8665, lng: 10.1647},
-    "Ben Arous": {lat: 36.7531, lng: 10.2189},
-    "Manouba":   {lat: 36.8083, lng: 10.0863},
-    "Nabeul":    {lat: 36.4561, lng: 10.7376},
-    "Zaghouan":  {lat: 36.4029, lng: 10.1429},
-    "Bizerte":   {lat: 37.2744, lng: 9.8739},
-    "Béja":      {lat: 36.7256, lng: 9.1817},
-    "Jendouba":  {lat: 36.5011, lng: 8.7802},
-    "Le Kef":    {lat: 36.1680, lng: 8.7096},
-    "Siliana":   {lat: 36.0840, lng: 9.3708},
-    "Kairouan":  {lat: 35.6781, lng: 10.0963},
-    "Kasserine": {lat: 35.1676, lng: 8.8365},
-    "Sidi Bouzid": {lat: 35.0382, lng: 9.4849},
-    "Sousse":    {lat: 35.8256, lng: 10.6084},
-    "Monastir":  {lat: 35.7770, lng: 10.8261},
-    "Mahdia":    {lat: 35.5047, lng: 11.0622},
-    "Sfax":      {lat: 34.7406, lng: 10.7603},
-    "Gabès":     {lat: 33.8815, lng: 10.0982},
-    "Médenine":  {lat: 33.3549, lng: 10.5055},
-    "Tataouine": {lat: 32.9297, lng: 10.4518},
-    "Gafsa":     {lat: 34.4250, lng: 8.7842},
-    "Tozeur":    {lat: 33.9197, lng: 8.1335},
-    "Kebili":    {lat: 33.7044, lng: 8.9690}
-  } as $coords
-  
-  | map(
-      . + {
-        "categorie": "Université",
-        "lat": ($coords[.gouvernorat].lat // null),
-        "lng": ($coords[.gouvernorat].lng // null)
+# On vérifie si l'import existe déjà pour éviter les doublons
+if ! grep -q "MarkerCluster.css" src/styles.css; then
+  cat <<EOF >> src/styles.css
+
+/* Imports Leaflet MarkerCluster (Requis pour le regroupement) */
+@import "leaflet.markercluster/dist/MarkerCluster.css";
+@import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+@import "leaflet/dist/leaflet.css";
+EOF
+fi
+
+# 2. CORRECTION DE LA LOGIQUE (app.ts)
+# On remplace layerGroup par markerClusterGroup partout et on corrige le bug "Toutes"
+echo "💻 Réécriture de src/app/app.ts avec regroupement actif..."
+cat <<EOF > src/app/app.ts
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common'; 
+import { HttpClientModule } from '@angular/common/http';
+import { LeafletModule } from '@bluehalo/ngx-leaflet'; 
+// import { LeafletModule } from 'ngx-leaflet'; // Décommentez si besoin
+
+import * as L from 'leaflet';
+import 'leaflet.markercluster'; 
+import { MapDataService } from './services/map-data.service';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule, LeafletModule, HttpClientModule],
+  templateUrl: './app.html',
+  styleUrls: ['./app.css'],
+  providers: [MapDataService]
+})
+export class App {
+  map!: L.Map;
+  currentLayer: any = null;
+
+  categories: string[] = [
+    'Toutes',
+    'Lycée',
+    'Maison des Jeunes',
+    'Poste',
+    'Ministère',
+    'Budget 2021'
+  ];
+
+  options = {
+    layers: [
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+      })
+    ],
+    zoom: 7,
+    center: L.latLng(33.8869, 9.5375)
+  };
+
+  constructor(private mapService: MapDataService) {}
+
+  onMapReady(map: L.Map) {
+    this.map = map;
+    this.loadStandardData('Toutes');
+  }
+
+  onCategoryChange(event: any) {
+    const selectedCat = event.target.value;
+    
+    if (this.currentLayer && this.map) {
+      this.map.removeLayer(this.currentLayer);
+      this.currentLayer = null;
+    }
+
+    if (selectedCat === 'Budget 2021') {
+      this.loadBudgetData();
+    } else {
+      this.loadStandardData(selectedCat);
+    }
+  }
+
+  // --- 1. CLUSTER BUDGET (Icône Verte + Somme) ---
+  loadBudgetData() {
+    this.mapService.getBudget2021().subscribe({
+      next: (data) => {
+        const budgetCluster = L.markerClusterGroup({
+          maxClusterRadius: 60,
+          iconCreateFunction: (cluster) => {
+            const markers = cluster.getAllChildMarkers();
+            let totalPrevision = 0;
+
+            markers.forEach((marker: any) => {
+              if (marker.options.previsionAmount) {
+                totalPrevision += marker.options.previsionAmount;
+              }
+            });
+
+            const formattedSum = new Intl.NumberFormat('fr-TN', { 
+              style: 'currency', currency: 'TND', maximumFractionDigits: 0 
+            }).format(totalPrevision);
+
+            return L.divIcon({
+              html: \`<div class="budget-cluster-icon">
+                       <span>\${formattedSum}</span>
+                       <small>(\${markers.length} mun.)</small>
+                     </div>\`,
+              className: 'budget-cluster',
+              iconSize: L.point(90, 90)
+            });
+          }
+        });
+
+        data.forEach(item => {
+          const lat = parseFloat(item.lat);
+          const lng = parseFloat(item.lng);
+          const rawPrevision = item.depenses_prevision ? String(item.depenses_prevision) : '0';
+          const valPrevision = parseFloat(rawPrevision.replace(/\s/g, '').replace(',', '.'));
+
+          if (!isNaN(lat) && !isNaN(lng)) {
+            const marker = L.marker([lat, lng], {
+              icon: L.icon({
+                iconUrl: 'assets/marker-icon.png',
+                shadowUrl: 'assets/marker-shadow.png',
+                iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
+              })
+            });
+            (marker.options as any)['previsionAmount'] = valPrevision;
+            marker.bindPopup(this.generateFullPopup(item));
+            budgetCluster.addLayer(marker);
+          }
+        });
+
+        this.currentLayer = budgetCluster;
+        this.map.addLayer(this.currentLayer);
+        
+        if (data.length > 0) {
+            const bounds = budgetCluster.getBounds();
+            if (bounds.isValid()) this.map.fitBounds(bounds);
+        }
+      },
+      error: (err) => console.error('Erreur Budget:', err)
+    });
+  }
+
+  // --- 2. CLUSTER STANDARD (Icône par défaut) ---
+  loadStandardData(category: string) {
+    this.mapService.getLocations().subscribe({
+      next: (locations) => {
+        // Correction du BUG : Si 'Toutes', on prend tout, sinon on filtre
+        const filtered = category === 'Toutes' 
+          ? locations 
+          : locations.filter(l => l.categorie === category);
+
+        // MODIFICATION : Utilisation de markerClusterGroup au lieu de layerGroup
+        const standardCluster = L.markerClusterGroup();
+
+        if (filtered) {
+          filtered.forEach(loc => {
+            const marker = L.marker([loc.lat, loc.lng], {
+              icon: L.icon({
+                iconUrl: 'assets/marker-icon.png',
+                shadowUrl: 'assets/marker-shadow.png',
+                iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
+              })
+            });
+            marker.bindPopup(\`<b>\${loc.nom}</b><br>\${loc.categorie}\`);
+            standardCluster.addLayer(marker);
+          });
+        }
+
+        this.currentLayer = standardCluster;
+        this.map.addLayer(this.currentLayer);
+      },
+      error: (err) => console.error('Erreur Standard:', err)
+    });
+  }
+
+  generateFullPopup(data: any): string {
+    let rows = '';
+    for (const key in data) {
+      if (data.hasOwnProperty(key) && key !== 'lat' && key !== 'lng') {
+         const label = key;
+         rows += \`
+          <tr>
+            <td style="font-weight:bold; color:#555; padding:3px; border-bottom:1px solid #eee;">\${label}</td>
+            <td style="padding:3px; border-bottom:1px solid #eee;">\${data[key]}</td>
+          </tr>\`;
       }
-    )
-' ../universités.json > resultat_universites.json
+    }
+    return \`<div style="max-height:300px; overflow-y:auto; min-width:250px;">
+              <h3 style="margin-top:0; color:#28a745; font-size:14px;">Détails</h3>
+              <table style="width:100%; border-collapse:collapse; font-size:12px;"><tbody>\${rows}</tbody></table>
+            </div>\`;
+  }
+}
+EOF
 
-# 3. Affichage du résultat
-cat resultat_universites.json
+echo "✅ Script terminé : Styles CSS ajoutés et regroupement activé pour toutes les catégories."

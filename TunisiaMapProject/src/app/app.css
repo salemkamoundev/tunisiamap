@@ -1,116 +1,55 @@
-.map-wrapper {
+/* Layout Principal */
+.map-container {
   position: relative;
   height: 100vh;
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-.map-container {
-  height: 100%;
+#map {
+  flex-grow: 1;
   width: 100%;
+  height: 100%;
   z-index: 1;
 }
 
-.filter-controls {
+/* Contrôles */
+.map-controls {
   position: absolute;
   top: 20px;
   right: 20px;
   z-index: 1000;
-  background-color: rgba(255, 255, 255, 0.95);
-  padding: 15px;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  background: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  font-family: Arial, sans-serif;
+}
+.map-controls select { margin-left: 10px; padding: 5px; }
+
+/* Cluster Vert (Budget) */
+::ng-deep .budget-cluster-icon {
+  background-color: rgba(40, 167, 69, 0.95);
+  border: 3px solid white;
+  border-radius: 50%;
+  color: white;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  min-width: 220px;
-  font-family: 'Segoe UI', sans-serif;
-}
-
-.filter-controls label {
-  font-weight: 600;
-  color: #333;
-}
-
-.category-select {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-  outline: none;
-  transition: 0.3s;
-}
-
-.category-select:focus {
-  border-color: #FF1493;
-}
-
-.count-badge {
-  font-size: 0.8rem;
-  color: #666;
-  text-align: right;
-}
-
-/* --- CUSTOM CLUSTER STYLES --- */
-.custom-cluster {
-  background: transparent;
-}
-
-.custom-cluster div {
-  width: 36px;
-  height: 36px;
-  margin-left: 2px;
-  margin-top: 2px;
-  text-align: center;
-  border-radius: 50%;
-  font-weight: bold;
-  color: white;
-  font-family: sans-serif;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  border: 3px solid rgba(255,255,255,0.4);
-  transition: transform 0.2s ease;
-}
-
-.custom-cluster div:hover {
-  transform: scale(1.15);
+  align-items: center;
+  width: 90px;
+  height: 90px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+  text-align: center;
+  font-family: Arial, sans-serif;
   cursor: pointer;
+  transition: transform 0.2s;
 }
-
-/* Petit (<10) : Rose doux */
-.custom-cluster-small div {
-  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-  color: #d63384; 
+::ng-deep .budget-cluster-icon:hover {
+  background-color: #218838;
+  transform: scale(1.1);
+  z-index: 9999;
 }
-
-/* Moyen (<100) : Rose vif */
-.custom-cluster-medium div {
-  background: linear-gradient(135deg, #FF1493 0%, #ff4d4d 100%);
-  width: 42px;
-  height: 42px;
-  margin-top: -1px;
-  margin-left: -1px;
-  color: white;
-}
-
-/* Grand (>100) : Violet/Rose profond */
-.custom-cluster-large div {
-  background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
-  width: 50px;
-  height: 50px;
-  margin-top: -5px;
-  margin-left: -5px;
-  border: 3px solid rgba(255,255,255,0.6);
-  font-size: 1.1rem;
-}
-
-.custom-cluster span {
-  line-height: 1;
-}
-
-/* Force la désactivation des événements sur les polygones SVG */
-/* Utile si Leaflet ajoute quand même la classe par erreur */
-path.leaflet-interactive {
-    pointer-events: none !important;
-}
+::ng-deep .budget-cluster-icon span { font-weight: bold; font-size: 12px; }
+::ng-deep .budget-cluster-icon small { font-size: 10px; font-weight: normal; }

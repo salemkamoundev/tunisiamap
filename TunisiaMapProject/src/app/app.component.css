@@ -1,0 +1,72 @@
+/* Layout Principal */
+.map-container {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#map {
+  flex-grow: 1;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* Contrôles Flottants */
+.map-controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000; /* Au-dessus de la carte */
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  font-family: Arial, sans-serif;
+}
+
+.map-controls select {
+  margin-left: 10px;
+  padding: 5px;
+  font-size: 14px;
+}
+
+/* Styles du Cluster Budget (Bulles Vertes) */
+::ng-deep .budget-cluster-icon {
+  background-color: rgba(40, 167, 69, 0.95); /* Vert Bootstrap */
+  border: 3px solid white;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 90px;
+  height: 90px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+  text-align: center;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+::ng-deep .budget-cluster-icon:hover {
+  background-color: #218838;
+  transform: scale(1.1);
+  z-index: 9999;
+}
+
+::ng-deep .budget-cluster-icon span {
+  font-weight: bold;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+::ng-deep .budget-cluster-icon small {
+  font-size: 10px;
+  opacity: 0.9;
+  margin-top: 2px;
+  font-weight: normal;
+}

@@ -1,163 +1,178 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { LeafletModule } from '@bluehalo/ngx-leaflet';
-import { MapDataService, Location } from './services/map-data.service';
-import { forkJoin } from 'rxjs';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common'; 
+import { HttpClientModule } from '@angular/common/http';
+import { LeafletModule } from '@bluehalo/ngx-leaflet'; 
+// import { LeafletModule } from 'ngx-leaflet'; // Décommentez si besoin
+
 import * as L from 'leaflet';
+import 'leaflet.markercluster'; 
+import { MapDataService } from './services/map-data.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, LeafletModule], 
+  imports: [CommonModule, LeafletModule, HttpClientModule],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrls: ['./app.css'],
+  providers: [MapDataService]
 })
-export class App implements OnInit {
-  allLocations: Location[] = [];
-  categories: string[] = [];
-  selectedCategory: string = '';
-  
-  // Options de la carte
-  options: any;
-  
-  markerClusterGroup: any;
-  geoJsonLayer: any;
-  layers: any[] = [];
-  
-  private isPluginLoaded = false;
+export class App {
+  map!: L.Map;
+  currentLayer: any = null;
 
-  constructor(private mapDataService: MapDataService) {}
+  categories: string[] = [
+    'Toutes',
+    'Lycée',
+    'Maison des Jeunes',
+    'Poste',
+    'Ministère',
+    'Budget 2021'
+  ];
 
-  ngOnInit() {
-    this.options = {
-      layers: [
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-          maxZoom: 19,
-          attribution: '&copy; OpenStreetMap &copy; CARTO'
-        })
-      ],
-      zoom: 7,
-      center: L.latLng(34.0, 9.0)
-    };
+  options = {
+    layers: [
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+      })
+    ],
+    zoom: 7,
+    center: L.latLng(33.8869, 9.5375)
+  };
 
-    this.initializeMapData();
+  constructor(private mapService: MapDataService) {}
+
+  onMapReady(map: L.Map) {
+    this.map = map;
+    this.loadStandardData('Toutes');
   }
 
-  async initializeMapData() {
-    (window as any).L = L;
-
-    try {
-      await import('leaflet.markercluster');
-      this.isPluginLoaded = true;
-    } catch (e) {
-      console.error('Erreur chargement plugin', e);
-    }
-
-    this.loadData();
-  }
-
-  loadData() {
-    this.fixIcons();
-
-    forkJoin({
-      locations: this.mapDataService.getLocations()
-    }).subscribe({
-      next: (data) => {
-        if (data.locations && data.locations.length > 0) {
-          this.allLocations = data.locations;
-          const uniqueCats = new Set(this.allLocations.map(l => l.categorie).filter(c => c));
-          this.categories = Array.from(uniqueCats).sort();
-          
-          if (this.isPluginLoaded) {
-            this.updateMarkers(this.allLocations);
-          }
-        }
-
-      },
-      error: (err) => console.error('Erreur chargement:', err)
-    });
-  }
-
-  fixIcons() {
-    const iconRetinaUrl = 'assets/marker-icon-2x.png';
-    const iconUrl = 'assets/marker-icon.png';
-    const shadowUrl = 'assets/marker-shadow.png';
-    const iconDefault = L.icon({
-      iconRetinaUrl,
-      iconUrl,
-      shadowUrl,
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      tooltipAnchor: [16, -28],
-      shadowSize: [41, 41]
-    });
-    L.Marker.prototype.options.icon = iconDefault;
-  }
-
-
-  onCategoryChange(event: Event) {
-    const selectElement = event.target as HTMLSelectElement;
-    this.selectedCategory = selectElement.value;
+  onCategoryChange(event: any) {
+    const selectedCat = event.target.value;
     
-    if (this.selectedCategory) {
-      const filtered = this.allLocations.filter(l => l.categorie === this.selectedCategory);
-      this.updateMarkers(filtered);
+    if (this.currentLayer && this.map) {
+      this.map.removeLayer(this.currentLayer);
+      this.currentLayer = null;
+    }
+
+    if (selectedCat === 'Budget 2021') {
+      this.loadBudgetData();
     } else {
-       this.updateMarkers(this.allLocations);
+      this.loadStandardData(selectedCat);
     }
   }
 
-  updateMarkers(locations: Location[]) {
-    if (!this.isPluginLoaded) return;
+  // --- 1. CLUSTER BUDGET (Icône Verte + Somme) ---
+  loadBudgetData() {
+    this.mapService.getBudget2021().subscribe({
+      next: (data) => {
+        const budgetCluster = L.markerClusterGroup({
+          maxClusterRadius: 60,
+          iconCreateFunction: (cluster) => {
+            const markers = cluster.getAllChildMarkers();
+            let totalPrevision = 0;
 
-    if (this.markerClusterGroup) {
-      this.layers = this.layers.filter(l => l !== this.markerClusterGroup);
-    }
+            markers.forEach((marker: any) => {
+              if (marker.options.previsionAmount) {
+                totalPrevision += marker.options.previsionAmount;
+              }
+            });
 
-    if (!(L as any).markerClusterGroup) {
-        const GlobalL = (window as any).L;
-        if (GlobalL && GlobalL.markerClusterGroup) {
-            this.createClusterGroup(GlobalL, locations);
-            return;
-        }
-        return;
-    }
+            const formattedSum = new Intl.NumberFormat('fr-TN', { 
+              style: 'currency', currency: 'TND', maximumFractionDigits: 0 
+            }).format(totalPrevision);
 
-    this.createClusterGroup(L, locations);
-  }
-
-  createClusterGroup(LeafletObj: any, locations: Location[]) {
-    this.markerClusterGroup = LeafletObj.markerClusterGroup({ 
-      maxClusterRadius: 80,
-      animate: true,
-      spiderfyOnMaxZoom: true,
-      showCoverageOnHover: false,
-      iconCreateFunction: function (cluster: any) {
-        const childCount = cluster.getChildCount();
-        let c = ' marker-cluster-';
-        if (childCount < 10) c += 'small';
-        else if (childCount < 100) c += 'medium';
-        else c += 'large';
-
-        return new L.DivIcon({ 
-          html: '<div><span>' + childCount + '</span></div>', 
-          className: 'custom-cluster' + c, 
-          iconSize: new L.Point(40, 40) 
+            return L.divIcon({
+              html: `<div class="budget-cluster-icon">
+                       <span>${formattedSum}</span>
+                       <small>(${markers.length} mun.)</small>
+                     </div>`,
+              className: 'budget-cluster',
+              iconSize: L.point(90, 90)
+            });
+          }
         });
-      }
-    });
 
-    const markers = locations.map(loc => {
-      return L.marker([loc.lat, loc.lng], { title: loc.nom })
-        .bindPopup(`<div style="text-align:center"><b>${loc.nom}</b><br><span style="color:#666">${loc.categorie}</span></div>`);
-    });
+        data.forEach(item => {
+          const lat = parseFloat(item.lat);
+          const lng = parseFloat(item.lng);
+          const rawPrevision = item.depenses_prevision ? String(item.depenses_prevision) : '0';
+          const valPrevision = parseFloat(rawPrevision.replace(/\s/g, '').replace(',', '.'));
 
-    this.markerClusterGroup.addLayers(markers);
-    this.layers = [...this.layers, this.markerClusterGroup];
+          if (!isNaN(lat) && !isNaN(lng)) {
+            const marker = L.marker([lat, lng], {
+              icon: L.icon({
+                iconUrl: 'assets/marker-icon.png',
+                shadowUrl: 'assets/marker-shadow.png',
+                iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
+              })
+            });
+            (marker.options as any)['previsionAmount'] = valPrevision;
+            marker.bindPopup(this.generateFullPopup(item));
+            budgetCluster.addLayer(marker);
+          }
+        });
+
+        this.currentLayer = budgetCluster;
+        this.map.addLayer(this.currentLayer);
+        
+        if (data.length > 0) {
+            const bounds = budgetCluster.getBounds();
+            if (bounds.isValid()) this.map.fitBounds(bounds);
+        }
+      },
+      error: (err) => console.error('Erreur Budget:', err)
+    });
   }
 
-  onMapReady(map: any) {
-    setTimeout(() => { map.invalidateSize(); }, 200);
+  // --- 2. CLUSTER STANDARD (Icône par défaut) ---
+  loadStandardData(category: string) {
+    this.mapService.getLocations().subscribe({
+      next: (locations) => {
+        // Correction du BUG : Si 'Toutes', on prend tout, sinon on filtre
+        const filtered = category === 'Toutes' 
+          ? locations 
+          : locations.filter(l => l.categorie === category);
+
+        // MODIFICATION : Utilisation de markerClusterGroup au lieu de layerGroup
+        const standardCluster = L.markerClusterGroup();
+
+        if (filtered) {
+          filtered.forEach(loc => {
+            const marker = L.marker([loc.lat, loc.lng], {
+              icon: L.icon({
+                iconUrl: 'assets/marker-icon.png',
+                shadowUrl: 'assets/marker-shadow.png',
+                iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
+              })
+            });
+            marker.bindPopup(`<b>${loc.nom}</b><br>${loc.categorie}`);
+            standardCluster.addLayer(marker);
+          });
+        }
+
+        this.currentLayer = standardCluster;
+        this.map.addLayer(this.currentLayer);
+      },
+      error: (err) => console.error('Erreur Standard:', err)
+    });
+  }
+
+  generateFullPopup(data: any): string {
+    let rows = '';
+    for (const key in data) {
+      if (data.hasOwnProperty(key) && key !== 'lat' && key !== 'lng') {
+         const label = key;
+         rows += `
+          <tr>
+            <td style="font-weight:bold; color:#555; padding:3px; border-bottom:1px solid #eee;">${label}</td>
+            <td style="padding:3px; border-bottom:1px solid #eee;">${data[key]}</td>
+          </tr>`;
+      }
+    }
+    return `<div style="max-height:300px; overflow-y:auto; min-width:250px;">
+              <h3 style="margin-top:0; color:#28a745; font-size:14px;">Détails</h3>
+              <table style="width:100%; border-collapse:collapse; font-size:12px;"><tbody>${rows}</tbody></table>
+            </div>`;
   }
 }
