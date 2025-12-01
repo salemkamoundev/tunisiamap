@@ -1,5 +1,683 @@
 [
   {
+    "nom": "HOPITAL DE AIN DRAHAM",
+    "categorie": "Hôpital",
+    "lat": 36.7865,
+    "lng": 8.6888
+  },
+  {
+    "nom": "HOPITAL DE SEJNANE",
+    "categorie": "Hôpital",
+    "lat": 37.0583,
+    "lng": 9.2417
+  },
+  {
+    "nom": "HOPITAL DE FERNANA",
+    "categorie": "Hôpital",
+    "lat": 36.6575,
+    "lng": 8.6853
+  },
+  {
+    "nom": "HOPITAL DE GUEBELLAT",
+    "categorie": "Hôpital",
+    "lat": 36.5417,
+    "lng": 9.6633
+  },
+  {
+    "nom": "HOPITAL DE HAOUARIA",
+    "categorie": "Hôpital",
+    "lat": 37.0435,
+    "lng": 11.0267
+  },
+  {
+    "nom": "HOPITAL DE SOLIMAN",
+    "categorie": "Hôpital",
+    "lat": 36.7196,
+    "lng": 10.4908
+  },
+  {
+    "nom": "HOPITAL DE SAKIET SIDI YOUSSEF",
+    "categorie": "Hôpital",
+    "lat": 36.2238,
+    "lng": 8.4422
+  },
+  {
+    "nom": "HOPITAL DE TAJEROUINE",
+    "categorie": "Hôpital",
+    "lat": 35.8893,
+    "lng": 8.5447
+  },
+  {
+    "nom": "HOPITAL DE GAAFOUR",
+    "categorie": "Hôpital",
+    "lat": 36.3241,
+    "lng": 9.3243
+  },
+  {
+    "nom": "HOPITAL DE ROUHIA",
+    "categorie": "Hôpital",
+    "lat": 35.6441,
+    "lng": 9.1172
+  },
+  {
+    "nom": "HOPITAL DE HAJEB EL AYOUN",
+    "categorie": "Hôpital",
+    "lat": 35.3970,
+    "lng": 9.5476
+  },
+  {
+    "nom": "HOPITAL DE FERIANA",
+    "categorie": "Hôpital",
+    "lat": 34.9460,
+    "lng": 8.5611
+  },
+  {
+    "nom": "HOPITAL D'ENFIDHA VILLE",
+    "categorie": "Hôpital",
+    "lat": 36.1364,
+    "lng": 10.3808
+  },
+  {
+    "nom": "HOPITAL DE BOUFICHA",
+    "categorie": "Hôpital",
+    "lat": 36.2982,
+    "lng": 10.4581
+  },
+  {
+    "nom": "HOPITAL DE OUARDANINE",
+    "categorie": "Hôpital",
+    "lat": 35.7071,
+    "lng": 10.6766
+  },
+  {
+    "nom": "HOPITAL DE CHEBBA",
+    "categorie": "Hôpital",
+    "lat": 35.2376,
+    "lng": 11.1129
+  },
+  {
+    "nom": "HOPITAL DE KSOUR ESSAF",
+    "categorie": "Hôpital",
+    "lat": 35.4246,
+    "lng": 10.9951
+  },
+  {
+    "nom": "HOPITAL DE MELLOULECH",
+    "categorie": "Hôpital",
+    "lat": 35.1651,
+    "lng": 11.0354
+  },
+  {
+    "nom": "HOPITAL DE BOUMERDES",
+    "categorie": "Hôpital",
+    "lat": 35.4577,
+    "lng": 10.7221
+  },
+  {
+    "nom": "HOPITAL DE SKHIRA",
+    "categorie": "Hôpital",
+    "lat": 34.4253,
+    "lng": 10.0247
+  },
+  {
+    "nom": "HOPITAL DE M’DHILLA",
+    "categorie": "Hôpital",
+    "lat": 34.2873,
+    "lng": 8.7411
+  },
+  {
+    "nom": "HOPITAL DE DEGACHE",
+    "categorie": "Hôpital",
+    "lat": 33.9920,
+    "lng": 8.2341
+  },
+  {
+    "nom": "HOPITAL DE REGUEB",
+    "categorie": "Hôpital",
+    "lat": 34.8608,
+    "lng": 9.7850
+  },
+  {
+    "nom": "HOPITAL DE MAZZOUNA",
+    "categorie": "Hôpital",
+    "lat": 34.5840,
+    "lng": 9.8360
+  },
+  {
+    "nom": "HOPITAL DE SOUK EL AHAD",
+    "categorie": "Hôpital",
+    "lat": 33.7032,
+    "lng": 8.9747
+  },
+  {
+    "nom": "HOPITAL DE SIDI MAKHLOUF",
+    "categorie": "Hôpital",
+    "lat": 33.5096,
+    "lng": 10.4836
+  },
+  {
+    "nom": "HOPITAL TEBOURBA",
+    "categorie": "Hôpital",
+    "lat": 36.8381,
+    "lng": 9.8457
+  },
+  {
+    "nom": "HOPITAL HASSEN BELKHOUJA DE RAS JEBEL",
+    "categorie": "Hôpital",
+    "lat": 37.2150,
+    "lng": 10.1258
+  },
+  {
+    "nom": "HOPITAL  DE BOU SALEM",
+    "categorie": "Hôpital",
+    "lat": 36.6123,
+    "lng": 8.9709
+  },
+  {
+    "nom": "HOPITAL DE AMDOUNE",
+    "categorie": "Hôpital",
+    "lat": 36.7633,
+    "lng": 9.0791
+  },
+  {
+    "nom": "HOPITAL DE TESTOUR",
+    "categorie": "Hôpital",
+    "lat": 36.5775,
+    "lng": 9.5196
+  },
+  {
+    "nom": "HOPITAL DE GROMBALIA",
+    "categorie": "Hôpital",
+    "lat": 36.5932,
+    "lng": 10.5015
+  },
+  {
+    "nom": "HOPITAL DE KORBA",
+    "categorie": "Hôpital",
+    "lat": 36.5741,
+    "lng": 10.8637
+  },
+  {
+    "nom": "HOPITAL D'EL KSOUR",
+    "categorie": "Hôpital",
+    "lat": 35.8900,
+    "lng": 8.8908
+  },
+  {
+    "nom": "HOPITAL DE SIDI BOUROUIS",
+    "categorie": "Hôpital",
+    "lat": 36.1790,
+    "lng": 9.1332
+  },
+  {
+    "nom": "HOPITAL DE MAKTHAR",
+    "categorie": "Hôpital",
+    "lat": 35.8558,
+    "lng": 9.1962
+  },
+  {
+    "nom": "HOPITAL DE HAFFOUZ",
+    "categorie": "Hôpital",
+    "lat": 35.6330,
+    "lng": 9.6778
+  },
+  {
+    "nom": "HOPITAL DE SBIKHA",
+    "categorie": "Hôpital",
+    "lat": 35.9367,
+    "lng": 10.0211
+  },
+  {
+    "nom": "HOPITAL D'EL ALA",
+    "categorie": "Hôpital",
+    "lat": 35.6155,
+    "lng": 9.5644
+  },
+  {
+    "nom": "HOPITAL DE OUESLATIA",
+    "categorie": "Hôpital",
+    "lat": 35.8462,
+    "lng": 9.5992
+  },
+  {
+    "nom": "HOPITAL DE SBIBA",
+    "categorie": "Hôpital",
+    "lat": 35.5435,
+    "lng": 9.0597
+  },
+  {
+    "nom": "HOPITAL DE THALA",
+    "categorie": "Hôpital",
+    "lat": 35.5944,
+    "lng": 8.6610
+  },
+  {
+    "nom": "HOPITAL KALAA KEBIRA",
+    "categorie": "Hôpital",
+    "lat": 35.8664,
+    "lng": 10.5531
+  },
+  {
+    "nom": "HOPITAL DE BOUHJAR",
+    "categorie": "Hôpital",
+    "lat": 35.6702,
+    "lng": 10.8631
+  },
+  {
+    "nom": "HOPITAL TEBOULBA",
+    "categorie": "Hôpital",
+    "lat": 35.6411,
+    "lng": 10.9706
+  },
+  {
+    "nom": "HOPITAL DE D'EL JEM",
+    "categorie": "Hôpital",
+    "lat": 35.2900,
+    "lng": 10.6938
+  },
+  {
+    "nom": "HOPITAL DE SIDI ALOUANE",
+    "categorie": "Hôpital",
+    "lat": 35.3726,
+    "lng": 10.9279
+  },
+  {
+    "nom": "HOPITAL DE BEMBLA",
+    "categorie": "Hôpital",
+    "lat": 35.6819,
+    "lng": 10.7661
+  },
+  {
+    "nom": "HOPITAL DE EL GUETAR",
+    "categorie": "Hôpital",
+    "lat": 34.3409,
+    "lng": 8.9381
+  },
+  {
+    "nom": "HOPITAL DE NEFTA",
+    "categorie": "Hôpital",
+    "lat": 33.8727,
+    "lng": 7.8765
+  },
+  {
+    "nom": "HOPITAL DE JELMA",
+    "categorie": "Hôpital",
+    "lat": 35.2660,
+    "lng": 9.4138
+  },
+  {
+    "nom": "HOPITAL DE MEKNASSY",
+    "categorie": "Hôpital",
+    "lat": 34.6052,
+    "lng": 9.6123
+  },
+  {
+    "nom": "HOPITAL DE MARETH",
+    "categorie": "Hôpital",
+    "lat": 33.6130,
+    "lng": 10.2920
+  },
+  {
+    "nom": "HOPITAL DE DOUZ",
+    "categorie": "Hôpital",
+    "lat": 33.4659,
+    "lng": 9.0266
+  },
+  {
+    "nom": "HOPITAL DE BENI KHEDECHE",
+    "categorie": "Hôpital",
+    "lat": 33.2459,
+    "lng": 10.2078
+  },
+  {
+    "nom": "HOPITAL DE KALAA SGHIRA",
+    "categorie": "Hôpital",
+    "lat": 35.8321,
+    "lng": 10.5573
+  },
+  {
+    "nom": "HOPITAL EL HAMMA",
+    "categorie": "Hôpital",
+    "lat": 33.8941,
+    "lng": 9.8078
+  },
+  {
+    "nom": "HOPITAL  ETTADHAMEN",
+    "categorie": "Hôpital",
+    "lat": 36.8335,
+    "lng": 10.0861
+  },
+  {
+    "nom": "HOPITAL DE MATEUR",
+    "categorie": "Hôpital",
+    "lat": 37.0366,
+    "lng": 9.6785
+  },
+  {
+    "nom": "HOPITAL DU FAHS",
+    "categorie": "Hôpital",
+    "lat": 36.3620,
+    "lng": 9.9088
+  },
+  {
+    "nom": "HOPITAL ENNADHOUR",
+    "categorie": "Hôpital",
+    "lat": 36.1184,
+    "lng": 10.0958
+  },
+  {
+    "nom": "HOPITAL DE TABARKA",
+    "categorie": "Hôpital",
+    "lat": 36.9511,
+    "lng": 8.7603
+  },
+  {
+    "nom": "HOPITAL DE TEBOURSOUK",
+    "categorie": "Hôpital",
+    "lat": 36.4570,
+    "lng": 9.2484
+  },
+  {
+    "nom": "HOPITAL FATTOUMA LIMAM MENZEL BOUZELFA",
+    "categorie": "Hôpital",
+    "lat": 36.6868,
+    "lng": 10.5927
+  },
+  {
+    "nom": "HOPITAL DE DAHMANI",
+    "categorie": "Hôpital",
+    "lat": 35.9432,
+    "lng": 8.8292
+  },
+  {
+    "nom": "HOPITAL DE BOUARADA",
+    "categorie": "Hôpital",
+    "lat": 36.3529,
+    "lng": 9.6282
+  },
+  {
+    "nom": "HOPITAL DE KESRA",
+    "categorie": "Hôpital",
+    "lat": 35.7937,
+    "lng": 9.3560
+  },
+  {
+    "nom": "HOPITAL D'EL ALA",
+    "categorie": "Hôpital",
+    "lat": 35.6155,
+    "lng": 9.5644
+  },
+  {
+    "nom": "HOPITAL DE OUESLATIA",
+    "categorie": "Hôpital",
+    "lat": 35.8462,
+    "lng": 9.5992
+  },
+  {
+    "nom": "HOPITAL DE SBIKHA",
+    "categorie": "Hôpital",
+    "lat": 35.9367,
+    "lng": 10.0211
+  },
+  {
+    "nom": "HOPITAL DE SBEITLA",
+    "categorie": "Hôpital",
+    "lat": 35.2374,
+    "lng": 9.1192
+  },
+  {
+    "nom": "HOPITAL HABIB BAYAR DE KALAA KEBIRA",
+    "categorie": "Hôpital",
+    "lat": 35.8664,
+    "lng": 10.5531
+  },
+  {
+    "nom": "HOPITAL BEKALTA",
+    "categorie": "Hôpital",
+    "lat": 35.6162,
+    "lng": 10.9910
+  },
+  {
+    "nom": "HOPITAL DE SAHLINE",
+    "categorie": "Hôpital",
+    "lat": 35.7513,
+    "lng": 10.7035
+  },
+  {
+    "nom": "HOPITAL DE CHORBANE",
+    "categorie": "Hôpital",
+    "lat": 35.2680,
+    "lng": 10.3724
+  },
+  {
+    "nom": "HOPITAL DE OULED CHAMEKH",
+    "categorie": "Hôpital",
+    "lat": 35.4561,
+    "lng": 10.3230
+  },
+  {
+    "nom": "HOPITAL DE NEBER",
+    "categorie": "Hôpital",
+    "lat": 36.2946,
+    "lng": 8.7652
+  },
+  {
+    "nom": "HOPITAL DE BIR ALI BEN KHLIFA",
+    "categorie": "Hôpital",
+    "lat": 34.7367,
+    "lng": 10.0902
+  },
+  {
+    "nom": "HOPITAL DE  BELKHIR",
+    "categorie": "Hôpital",
+    "lat": 34.2755,
+    "lng": 9.3934
+  },
+  {
+    "nom": "HOPITAL DE MOULARES",
+    "categorie": "Hôpital",
+    "lat": 34.4825,
+    "lng": 8.2915
+  },
+  {
+    "nom": "HOPITAL DE HAZOUA",
+    "categorie": "Hôpital",
+    "lat": 33.7380,
+    "lng": 7.6080
+  },
+  {
+    "nom": "HOPITAL DE  BIR EL HAFEY",
+    "categorie": "Hôpital",
+    "lat": 34.9169,
+    "lng": 9.1842
+  },
+  {
+    "nom": "HOPITAL DE BEN AOUN",
+    "categorie": "Hôpital",
+    "lat": 34.8314,
+    "lng": 9.1316
+  },
+  {
+    "nom": "HOPITAL DE FAOUAR",
+    "categorie": "Hôpital",
+    "lat": 33.3560,
+    "lng": 8.6791
+  },
+  {
+    "nom": "HOPITAL DE GHOMRASSEN",
+    "categorie": "Hôpital",
+    "lat": 33.0600,
+    "lng": 10.3436
+  },
+  {
+    "nom": "HOPITAL  EL ALIA",
+    "categorie": "Hôpital",
+    "lat": 37.1726,
+    "lng": 10.0277
+  },
+  {
+    "nom": "HOPITAL DE BENI KHALLED",
+    "categorie": "Hôpital",
+    "lat": 36.6363,
+    "lng": 10.5967
+  },
+  {
+    "nom": "HOPITAL DE GHARDIMAOU",
+    "categorie": "Hôpital",
+    "lat": 36.4450,
+    "lng": 8.4405
+  },
+  {
+    "nom": "HOPITAL DE NEFZA",
+    "categorie": "Hôpital",
+    "lat": 36.9784,
+    "lng": 9.0798
+  },
+  {
+    "nom": "HOPITAL DE KELIBIA",
+    "categorie": "Hôpital",
+    "lat": 36.8438,
+    "lng": 11.0996
+  },
+  {
+    "nom": "HOPITAL HAMMAMET",
+    "categorie": "Hôpital",
+    "lat": 36.3941,
+    "lng": 10.6175
+  },
+  {
+    "nom": "HOPITAL DE BARGOU",
+    "categorie": "Hôpital",
+    "lat": 36.0846,
+    "lng": 9.5656
+  },
+  {
+    "nom": "HOPITAL DE KRIB",
+    "categorie": "Hôpital",
+    "lat": 36.3291,
+    "lng": 9.1324
+  },
+  {
+    "nom": "HOPITAL DE BOUHAJLA",
+    "categorie": "Hôpital",
+    "lat": 35.3950,
+    "lng": 10.0495
+  },
+  {
+    "nom": "HOPITAL DE CHEBIKA",
+    "categorie": "Hôpital",
+    "lat": 35.6171,
+    "lng": 9.9252
+  },
+  {
+    "nom": "HOPITAL DE NASRALLAH",
+    "categorie": "Hôpital",
+    "lat": 35.3569,
+    "lng": 9.8261
+  },
+  {
+    "nom": "HOPITAL DE SBEITLA",
+    "categorie": "Hôpital",
+    "lat": 35.2374,
+    "lng": 9.1192
+  },
+  {
+    "nom": "HOPITAL DE BOUFICHA",
+    "categorie": "Hôpital",
+    "lat": 36.2982,
+    "lng": 10.4581
+  },
+  {
+    "nom": "HOPITAL DE JEMMAL",
+    "categorie": "Hôpital",
+    "lat": 35.6300,
+    "lng": 10.7330
+  },
+  {
+    "nom": "HOPITAL DE KSIBET EL MEDIOUNI",
+    "categorie": "Hôpital",
+    "lat": 35.6813,
+    "lng": 10.8425
+  },
+  {
+    "nom": "HOPITAL DE ZERAMDINE",
+    "categorie": "Hôpital",
+    "lat": 35.5666,
+    "lng": 10.7148
+  },
+  {
+    "nom": "HOPITAL DE HBIRA",
+    "categorie": "Hôpital",
+    "lat": 35.1583,
+    "lng": 10.2583
+  },
+  {
+    "nom": "HOPITAL DE SOUASSI",
+    "categorie": "Hôpital",
+    "lat": 35.3392,
+    "lng": 10.5489
+  },
+  {
+    "nom": "HOPITAL DE BEMBLA",
+    "categorie": "Hôpital",
+    "lat": 35.6819,
+    "lng": 10.7661
+  },
+  {
+    "nom": "HOPITAL DE REDEYFE",
+    "categorie": "Hôpital",
+    "lat": 34.3784,
+    "lng": 8.1576
+  },
+  {
+    "nom": "HOPITAL DE TAMEGHZA",
+    "categorie": "Hôpital",
+    "lat": 34.3857,
+    "lng": 7.9360
+  },
+  {
+    "nom": "HOPITAL DE OULED HAFFOUZ",
+    "categorie": "Hôpital",
+    "lat": 35.0789,
+    "lng": 9.8519
+  },
+  {
+    "nom": "HOPITAL DE  MENZEL BOUZAIENE",
+    "categorie": "Hôpital",
+    "lat": 34.5739,
+    "lng": 9.4304
+  },
+  {
+    "nom": "HOPITAL DE OUEDHREF",
+    "categorie": "Hôpital",
+    "lat": 34.0374,
+    "lng": 8.3410
+  },
+  {
+    "nom": "HOPITAL DE MATMATA",
+    "categorie": "Hôpital",
+    "lat": 33.5484,
+    "lng": 9.9671
+  },
+  {
+    "nom": "HOPITAL DE MIDOUN",
+    "categorie": "Hôpital",
+    "lat": 33.8047,
+    "lng": 10.9919
+  },
+  {
+    "nom": "HOPITAL  DE REMADA",
+    "categorie": "Hôpital",
+    "lat": 32.3245,
+    "lng": 10.3887
+  },
+  {
+    "nom": "HOPITAL DE NEFZA",
+    "categorie": "Hôpital",
+    "lat": 36.9784,
+    "lng": 9.0798
+  },
+  {
     "nom": "E.P.BAB JEDID",
     "categorie": "École",
     "lat": 36.79216,

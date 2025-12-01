@@ -60,8 +60,7 @@ export class App implements OnInit {
     this.fixIcons();
 
     forkJoin({
-      locations: this.mapDataService.getLocations(),
-      geoJson: this.mapDataService.getGovernorates()
+      locations: this.mapDataService.getLocations()
     }).subscribe({
       next: (data) => {
         if (data.locations && data.locations.length > 0) {
@@ -74,9 +73,6 @@ export class App implements OnInit {
           }
         }
 
-        if (data.geoJson) {
-            this.initGeoJsonLayer(data.geoJson);
-        }
       },
       error: (err) => console.error('Erreur chargement:', err)
     });
@@ -99,25 +95,6 @@ export class App implements OnInit {
     L.Marker.prototype.options.icon = iconDefault;
   }
 
-  initGeoJsonLayer(geoJsonData: any) {
-    this.geoJsonLayer = L.geoJSON(geoJsonData, {
-      // --- MODIFICATION ICI : interactive: false ---
-      // Cela empêche la classe 'leaflet-interactive' d'être ajoutée
-      // Les contours ne captureront plus les clics de souris
-      interactive: false, 
-      
-      style: (feature: any) => ({
-        color: '#333', 
-        weight: 1, 
-        opacity: 0.6, 
-        fillColor: 'transparent', 
-        fillOpacity: 0
-      })
-      // J'ai supprimé 'onEachFeature' car avec interactive:false, 
-      // les événements mouseover/click ne fonctionnent plus de toute façon.
-    });
-    this.layers.push(this.geoJsonLayer);
-  }
 
   onCategoryChange(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
