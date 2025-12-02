@@ -1,49 +1,23 @@
-/* Layout Principal */
-.map-container {
-  position: relative;
-  height: 100vh;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
+.map-container { position: relative; height: 100vh; width: 100%; display: flex; flex-direction: column; }
+#map { flex-grow: 1; width: 100%; height: 100%; z-index: 1; }
 
-#map {
-  flex-grow: 1;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-}
-
-/* Contrôles */
-.map-controls {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-  background: white;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  font-family: 'Segoe UI', Arial, sans-serif;
-  min-width: 250px;
-  max-width: 300px;
-}
+.map-controls { position: absolute; top: 20px; right: 20px; z-index: 1000; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); min-width: 250px; }
 .main-select select { width: 100%; padding: 6px; margin-top: 5px; }
 
 /* Filtres */
-.filter-container { margin-top: 10px; animation: fadeIn 0.3s ease-in-out; }
+.filter-container { margin-top: 10px; animation: fadeIn 0.3s; }
 .filter-header { display: flex; justify-content: space-between; margin-bottom: 10px; color: #28a745; }
-.toggle-btn { background: none; border: none; color: #007bff; font-size: 11px; cursor: pointer; text-decoration: underline; }
+.filter-header.recette-header { color: #007bff; } /* Bleu si Recette */
+
+.toggle-btn { background: none; border: none; color: #666; font-size: 11px; cursor: pointer; text-decoration: underline; }
 .filter-group { margin-bottom: 8px; }
 .filter-group label { display: block; font-size: 12px; color: #555; }
 .filter-group select { width: 100%; padding: 4px; }
 .reset-btn { width: 100%; padding: 6px; margin-top: 5px; background-color: #f8f9fa; border: 1px solid #ddd; cursor: pointer; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* --- CLUSTER BUDGET --- */
+/* --- CLUSTERS --- */
 ::ng-deep .budget-cluster-icon {
-  background-color: rgba(40, 167, 69, 0.95);
-  border: 2px solid white;
   border-radius: 50%;
   color: white;
   display: flex;
@@ -55,45 +29,19 @@
   box-shadow: 0 5px 15px rgba(0,0,0,0.4);
   text-align: center;
   cursor: pointer;
-  transition: transform 0.2s;
   padding: 5px;
   overflow: hidden;
+  transition: transform 0.2s;
 }
+::ng-deep .budget-cluster-icon:hover { transform: scale(1.1); z-index: 9999; }
+::ng-deep .budget-cluster-icon .amount { font-weight: bold; font-size: 11px; line-height: 1.2; }
+::ng-deep .budget-cluster-icon small { font-size: 9px; opacity: 0.8; font-weight: normal; }
+::ng-deep .budget-cluster-icon .location { font-size: 10px; font-weight: bold; color: #fff; margin: 2px 0; }
 
-::ng-deep .budget-cluster-icon:hover {
-  background-color: #218838;
-  transform: scale(1.1);
-  z-index: 9999;
-}
+/* --- BUDGET (Vert) --- */
+::ng-deep .budget-cluster-icon.gouvernorat { background-color: rgba(33, 136, 56, 0.95); border: 3px solid #c3e6cb; }
+::ng-deep .budget-cluster-icon.municipalite { background-color: rgba(40, 167, 69, 0.95); border: 2px solid white; }
 
-/* Montant */
-::ng-deep .budget-cluster-icon .amount {
-  font-weight: bold;
-  font-size: 11px;
-  line-height: 1.2;
-}
-
-/* Nom Géographique (Gouvernorat/Municipalité) */
-::ng-deep .budget-cluster-icon .location {
-  font-size: 10px;
-  font-weight: bold;
-  color: #d4edda; /* Vert très clair */
-  margin-top: 2px;
-  margin-bottom: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 90%;
-}
-
-::ng-deep .budget-cluster-icon small {
-  font-size: 9px;
-  opacity: 0.8;
-  font-weight: normal;
-}
-
-/* Variation de couleur subtile si c'est une municipalité précise */
-::ng-deep .budget-cluster-icon.municipalite {
-  background-color: rgba(30, 126, 52, 0.95);
-  border-color: #c3e6cb;
-}
+/* --- RECETTE (Bleu) --- */
+::ng-deep .budget-cluster-icon.recette-gov { background-color: rgba(0, 86, 179, 0.95); border: 3px solid #b8daff; }
+::ng-deep .budget-cluster-icon.recette-mun { background-color: rgba(0, 123, 255, 0.95); border: 2px solid white; }

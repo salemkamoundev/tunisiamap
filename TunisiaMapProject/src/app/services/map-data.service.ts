@@ -9,12 +9,18 @@ export class MapDataService {
   constructor(private http: HttpClient) { }
 
   getLocations(): Observable<any[]> {
-    // Les établissements classiques (Lycées, etc.)
     return this.http.get<any[]>('assets/all_locations.json');
   }
 
   getBudget2021(): Observable<any[]> {
-    // Le fichier spécifique Budget
     return this.http.get<any[]>('assets/budget2021.json');
+  }
+
+  getRecetteMunicipalites(): Observable<any[]> {
+    return this.http.get<any[]>('assets/recetteMunicipalites.json');
+  }
+
+  getDelegations(): Observable<any[]> {
+    return this.http.get<any[]>('assets/delegations.json');
   }
 }

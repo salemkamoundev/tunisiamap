@@ -10,10 +10,10 @@
       </select>
     </div>
 
-    <div *ngIf="isBudgetActive" class="filter-container">
+    <div *ngIf="isBudgetActive || isRecetteActive" class="filter-container">
       <hr>
-      <div class="filter-header">
-        <strong>Filtres Budget</strong>
+      <div class="filter-header" [class.recette-header]="isRecetteActive">
+        <strong>Filtres {{ isRecetteActive ? 'Recettes' : 'Budget' }}</strong>
         <button class="toggle-btn" (click)="filtersVisible = !filtersVisible">
           {{ filtersVisible ? 'Masquer' : 'Afficher' }}
         </button>
@@ -23,7 +23,7 @@
         
         <div class="filter-group">
           <label>Gouvernorat :</label>
-          <select [(ngModel)]="selectedGov" (change)="applyBudgetFilters()">
+          <select [(ngModel)]="selectedGov" (change)="applyFilters()">
             <option value="">(Tous)</option>
             <option *ngFor="let g of listGouvernorats" [value]="g">{{ g }}</option>
           </select>
@@ -31,7 +31,7 @@
 
         <div class="filter-group">
           <label>Municipalité :</label>
-          <select [(ngModel)]="selectedMun" (change)="applyBudgetFilters()">
+          <select [(ngModel)]="selectedMun" (change)="applyFilters()">
             <option value="">(Toutes)</option>
             <option *ngFor="let m of listMunicipalites" [value]="m">{{ m }}</option>
           </select>
