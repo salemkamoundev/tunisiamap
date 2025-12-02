@@ -39,20 +39,19 @@
       </select>
     </div>
 
-    <div *ngIf="isBudgetActive" class="filter-container">
+    <div *ngIf="isBudgetActive || isRecetteActive" class="filter-container">
       <hr>
-      <div class="filter-header">
-        <strong>Filtres Budget</strong>
+      <div class="filter-header" [class.recette-header]="isRecetteActive">
+        <strong>Filtres {{ isRecetteActive ? 'Recettes' : 'Budget' }}</strong>
         <button class="toggle-btn" (click)="filtersVisible = !filtersVisible">
           {{ filtersVisible ? 'Masquer' : 'Afficher' }}
         </button>
       </div>
 
       <div *ngIf="filtersVisible" class="filter-body">
-        
         <div class="filter-group">
           <label>Gouvernorat :</label>
-          <select [(ngModel)]="selectedGov" (change)="applyBudgetFilters()">
+          <select [(ngModel)]="selectedGov" (change)="applyFilters()">
             <option value="">(Tous)</option>
             <option *ngFor="let g of listGouvernorats" [value]="g">{{ g }}</option>
           </select>
@@ -60,7 +59,7 @@
 
         <div class="filter-group">
           <label>Municipalité :</label>
-          <select [(ngModel)]="selectedMun" (change)="applyBudgetFilters()">
+          <select [(ngModel)]="selectedMun" (change)="applyFilters()">
             <option value="">(Toutes)</option>
             <option *ngFor="let m of listMunicipalites" [value]="m">{{ m }}</option>
           </select>
@@ -81,10 +80,8 @@ import { Component, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms'; 
-
 import { MapDataService } from './services/map-data.service';
 
-// On utilise le L global du CDN
 declare const L: any;
 
 @Component({
@@ -98,17 +95,28 @@ declare const L: any;
 export class App implements AfterViewInit {
   map!: any;
   currentLayer: any = null;
+  activeLayers: any[] = []; // Pour le multi-cluster
 
   categories: string[] = [ 
-    'Stade', 'Lycée', 'Maison des Jeunes', 'Poste', 'Université', 'École', 'Budget 2021' 
+    'Stade', 'Lycée', 'Maison des Jeunes', 'Poste', 'Université', 'École', 
+    'Budget 2021', 'Recette Municipalités' 
   ];
 
+  // Etat
+  currentCategory: string = 'Toutes';
   isBudgetActive: boolean = false;
+  isRecetteActive: boolean = false;
   filtersVisible: boolean = true;
   
+  // Données Budget
   allBudgetData: any[] = [];
   filteredBudgetData: any[] = [];
   
+  // Données Recette
+  allRecetteData: any[] = [];
+  filteredRecetteData: any[] = [];
+
+  // Listes Filtres (Partagées ou distinctes selon besoin)
   listGouvernorats: string[] = [];
   listMunicipalites: string[] = [];
   
@@ -122,178 +130,235 @@ export class App implements AfterViewInit {
   }
 
   initMap() {
-    // Initialisation manuelle
     this.map = L.map('map').setView([33.8869, 9.5375], 7);
-
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
-
     this.loadStandardData('Toutes');
   }
 
   onCategoryChange(event: any) {
     const selectedCat = event.target.value;
+    this.currentCategory = selectedCat;
+    
+    // Reset états
     this.isBudgetActive = (selectedCat === 'Budget 2021');
+    this.isRecetteActive = (selectedCat === 'Recette Municipalités');
+    
+    // Reset Filtres UI
+    this.selectedGov = '';
+    this.selectedMun = '';
+    this.listGouvernorats = [];
+    this.listMunicipalites = [];
 
-    if (this.currentLayer && this.map) {
-      this.map.removeLayer(this.currentLayer);
-      this.currentLayer = null;
-    }
+    this.clearMap();
 
     if (this.isBudgetActive) {
       this.loadBudgetData();
+    } else if (this.isRecetteActive) {
+      this.loadRecetteData();
     } else {
       this.loadStandardData(selectedCat);
     }
   }
 
-  loadBudgetData() {
-    this.mapService.getBudget2021().subscribe({
-      next: (data) => {
-        this.allBudgetData = data;
-        this.extractFilterOptions();
-        this.applyBudgetFilters();
-      },
-      error: (err) => console.error('Erreur Budget:', err)
-    });
+  clearMap() {
+    if (this.currentLayer) this.map.removeLayer(this.currentLayer);
+    this.activeLayers.forEach(l => this.map.removeLayer(l));
+    this.activeLayers = [];
+    this.currentLayer = null;
   }
 
-  extractFilterOptions() {
-    const govs = this.allBudgetData.map(item => item.Nom_Gouvernorat_Ar).filter(Boolean);
+  // --- LOGIQUE COMMUNE FILTRES ---
+  extractFilters(data: any[], govKey: string, munKey: string) {
+    const govs = data.map(item => item[govKey]).filter(Boolean);
     this.listGouvernorats = [...new Set(govs)].sort();
-    const muns = this.allBudgetData.map(item => item.Nom_Municipalite_Ar).filter(Boolean);
+    const muns = data.map(item => item[munKey]).filter(Boolean);
     this.listMunicipalites = [...new Set(muns)].sort();
   }
 
-  applyBudgetFilters() {
-    this.filteredBudgetData = this.allBudgetData.filter(item => {
-      const matchGov = this.selectedGov ? item.Nom_Gouvernorat_Ar === this.selectedGov : true;
-      const matchMun = this.selectedMun ? item.Nom_Municipalite_Ar === this.selectedMun : true;
+  applyFilters() {
+    if (this.isBudgetActive) {
+      this.filteredBudgetData = this.filterData(this.allBudgetData, 'Nom_Gouvernorat_Ar', 'Nom_Municipalite_Ar');
+      this.renderHierarchicalCluster(this.filteredBudgetData, 'budget');
+    } else if (this.isRecetteActive) {
+      // Mapping des clés si fichier brut (FIELD3 = Gov, FIELD2 = Mun)
+      // Ou clés directes si fichier propre. Adaptez selon votre JSON réel.
+      // Ici je suppose que le JSON a des clés propres comme dans Budget.
+      // Si c'est FIELD3/FIELD2, changez ci-dessous.
+      this.filteredRecetteData = this.filterData(this.allRecetteData, 'Nom_Gouvernorat_Ar', 'Nom_Municipalite_Ar');
+      this.renderHierarchicalCluster(this.filteredRecetteData, 'recette');
+    }
+  }
+
+  filterData(data: any[], govKey: string, munKey: string) {
+    return data.filter(item => {
+      const matchGov = this.selectedGov ? item[govKey] === this.selectedGov : true;
+      const matchMun = this.selectedMun ? item[munKey] === this.selectedMun : true;
       return matchGov && matchMun;
     });
-    this.renderBudgetLayer(this.filteredBudgetData);
   }
 
   resetFilters() {
     this.selectedGov = '';
     this.selectedMun = '';
-    this.applyBudgetFilters();
+    this.applyFilters();
   }
 
-  renderBudgetLayer(data: any[]) {
-    if (this.currentLayer && this.map) {
-      this.map.removeLayer(this.currentLayer);
-    }
-
-    const budgetCluster = L.markerClusterGroup({
-      maxClusterRadius: 80,
-      iconCreateFunction: (cluster: any) => {
-        const markers = cluster.getAllChildMarkers();
-        let totalPrevision = 0;
-        const govs = new Set();
-        const muns = new Set();
-
-        markers.forEach((marker: any) => {
-          if (marker.options.previsionAmount) totalPrevision += marker.options.previsionAmount;
-          if (marker.options.govName) govs.add(marker.options.govName);
-          if (marker.options.munName) muns.add(marker.options.munName);
-        });
-
-        let locationLabel = 'Zones Multiples';
-        let locationClass = 'mixed';
-
-        if (muns.size === 1) {
-          locationLabel = [...muns][0] as string;
-          locationClass = 'municipalite';
-        } else if (govs.size === 1) {
-          locationLabel = [...govs][0] as string;
-          locationClass = 'gouvernorat';
-        } else {
-          locationLabel = 'Divers';
-        }
-
-        const formattedSum = new Intl.NumberFormat('fr-TN', { 
-          style: 'currency', currency: 'TND', maximumFractionDigits: 0 
-        }).format(totalPrevision);
-
-        return L.divIcon({
-          html: `<div class="budget-cluster-icon ${locationClass}">
-                   <span class="amount">${formattedSum}</span>
-                   <span class="location">${locationLabel}</span>
-                   <small>(${markers.length} projets)</small>
-                 </div>`,
-          className: 'budget-cluster',
-          iconSize: L.point(100, 100)
-        });
-      }
+  // --- CHARGEMENT BUDGET ---
+  loadBudgetData() {
+    this.mapService.getBudget2021().subscribe({
+      next: (data) => {
+        this.allBudgetData = data;
+        this.extractFilters(data, 'Nom_Gouvernorat_Ar', 'Nom_Municipalite_Ar');
+        this.filteredBudgetData = data;
+        this.renderHierarchicalCluster(data, 'budget');
+      },
+      error: (e) => console.error(e)
     });
+  }
+
+  // --- CHARGEMENT RECETTE ---
+  loadRecetteData() {
+    this.mapService.getRecetteMunicipalites().subscribe({
+      next: (data) => {
+        // Mapping optionnel si données brutes FIELD...
+        // data = data.map(d => ({ ...d, Nom_Gouvernorat_Ar: d.FIELD3, ... }));
+        
+        this.allRecetteData = data;
+        // Adapter les clés si nécessaire (ex: FIELD3 pour Gov)
+        this.extractFilters(data, 'Nom_Gouvernorat_Ar', 'Nom_Municipalite_Ar'); 
+        this.filteredRecetteData = data;
+        this.renderHierarchicalCluster(data, 'recette');
+      },
+      error: (e) => console.error(e)
+    });
+  }
+
+  // --- RENDU HIERARCHIQUE GENERIQUE (Budget & Recette) ---
+  renderHierarchicalCluster(data: any[], type: 'budget' | 'recette') {
+    this.clearMap();
+
+    const groupedByGov: { [key: string]: any[] } = {};
+    const govKey = 'Nom_Gouvernorat_Ar'; // Ou FIELD3
 
     data.forEach(item => {
-      const lat = parseFloat(item.lat);
-      const lng = parseFloat(item.lng);
-      const rawPrevision = item.depenses_prevision ? String(item.depenses_prevision) : '0';
-      const valPrevision = parseFloat(rawPrevision.replace(/\s/g, '').replace(',', '.'));
-
-      if (!isNaN(lat) && !isNaN(lng)) {
-        const marker = L.marker([lat, lng], {
-          icon: L.icon({
-            iconUrl: 'assets/marker-icon.png',
-            shadowUrl: 'assets/marker-shadow.png',
-            iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
-          })
-        });
-        
-        (marker as any).options.previsionAmount = valPrevision;
-        (marker as any).options.govName = item.Nom_Gouvernorat_Ar;
-        (marker as any).options.munName = item.Nom_Municipalite_Ar;
-
-        marker.bindPopup(this.generateFullPopup(item));
-        budgetCluster.addLayer(marker);
-      }
+      const g = item[govKey] || 'Autre';
+      if (!groupedByGov[g]) groupedByGov[g] = [];
+      groupedByGov[g].push(item);
     });
 
-    this.currentLayer = budgetCluster;
-    this.map.addLayer(this.currentLayer);
-    
-    if (data.length > 0) {
-        const bounds = budgetCluster.getBounds();
-        if (bounds.isValid()) this.map.fitBounds(bounds);
+    Object.keys(groupedByGov).forEach(govName => {
+      const groupData = groupedByGov[govName];
+      const cluster = L.markerClusterGroup({
+        maxClusterRadius: 80,
+        iconCreateFunction: (c: any) => this.createClusterIcon(c, govName, type)
+      });
+
+      groupData.forEach(item => {
+        const marker = this.createMarker(item, type);
+        if (marker) cluster.addLayer(marker);
+      });
+
+      this.activeLayers.push(cluster);
+      this.map.addLayer(cluster);
+    });
+
+    if (this.activeLayers.length > 0) {
+       const bounds = this.activeLayers[0].getBounds();
+       if(bounds.isValid()) this.map.fitBounds(bounds);
     }
   }
 
-  loadStandardData(category: string) {
+  createClusterIcon(cluster: any, defaultLabel: string, type: 'budget' | 'recette') {
+    const markers = cluster.getAllChildMarkers();
+    let total = 0;
+    const muns = new Set();
+
+    markers.forEach((m: any) => {
+      if (m.options.amount) total += m.options.amount;
+      if (m.options.munName) muns.add(m.options.munName);
+    });
+
+    let label = defaultLabel;
+    let cssType = type === 'budget' ? 'gouvernorat' : 'recette-gov'; // Classe CSS différente
+    let cssSub = type === 'budget' ? 'municipalite' : 'recette-mun';
+
+    if (muns.size === 1) {
+      label = [...muns][0] as string;
+      cssType = cssSub;
+    }
+
+    const fmt = new Intl.NumberFormat('fr-TN', { 
+      style: 'currency', currency: 'TND', maximumFractionDigits: 0 
+    }).format(total);
+
+    return L.divIcon({
+      html: `<div class="budget-cluster-icon ${cssType}">
+               <span class="amount">${fmt}</span>
+               <span class="location">${label}</span>
+               <small>(${markers.length})</small>
+             </div>`,
+      className: 'budget-cluster',
+      iconSize: L.point(100, 100)
+    });
+  }
+
+  createMarker(item: any, type: 'budget' | 'recette') {
+    const lat = parseFloat(item.lat);
+    const lng = parseFloat(item.lng);
+    
+    // Clés dynamiques selon le type
+    // Budget : depenses_prevision / Recette : recettes_previsions (ou FIELD20)
+    let rawAmount = '0';
+    if (type === 'budget') rawAmount = item.depenses_prevision;
+    if (type === 'recette') rawAmount = item.recettes_previsions || item.FIELD20; // Supporte les 2 formats
+
+    if (isNaN(lat) || isNaN(lng)) return null;
+
+    const val = parseFloat(String(rawAmount).replace(/\s/g, '').replace(',', '.'));
+
+    const marker = L.marker([lat, lng], {
+      icon: L.icon({
+        iconUrl: 'assets/marker-icon.png',
+        shadowUrl: 'assets/marker-shadow.png',
+        iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
+      })
+    });
+
+    (marker as any).options.amount = val;
+    (marker as any).options.govName = item.Nom_Gouvernorat_Ar || item.FIELD3;
+    (marker as any).options.munName = item.Nom_Municipalite_Ar || item.FIELD2;
+
+    marker.bindPopup(this.generateFullPopup(item));
+    return marker;
+  }
+
+  // --- STANDARDS ---
+  loadStandardData(cat: string) {
     this.mapService.getLocations().subscribe({
-      next: (locations) => {
-        const filtered = category === 'Toutes' 
-          ? locations 
-          : locations.filter(l => l.categorie === category);
-
-        const standardCluster = L.markerClusterGroup();
-
-        if (filtered) {
-          filtered.forEach(loc => {
-            const marker = L.marker([loc.lat, loc.lng], {
-              icon: L.icon({
-                iconUrl: 'assets/marker-icon.png',
-                shadowUrl: 'assets/marker-shadow.png',
-                iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
-              })
-            });
-            marker.bindPopup(`<b>${loc.nom}</b><br>${loc.categorie}`);
-            standardCluster.addLayer(marker);
-          });
+      next: (locs) => {
+        const filtered = cat === 'Toutes' ? locs : locs.filter(l => l.categorie === cat);
+        const cluster = L.markerClusterGroup();
+        filtered.forEach(l => {
+           const m = L.marker([l.lat, l.lng], {
+             icon: L.icon({
+               iconUrl: 'assets/marker-icon.png',
+               shadowUrl: 'assets/marker-shadow.png',
+               iconSize: [25, 41], iconAnchor: [12, 41]
+             })
+           });
+           m.bindPopup(`<b>${l.nom}</b><br>${l.categorie}`);
+           cluster.addLayer(m);
+        });
+        this.activeLayers.push(cluster);
+        this.map.addLayer(cluster);
+        if(filtered.length > 0) {
+            const b = cluster.getBounds();
+            if(b.isValid()) this.map.fitBounds(b);
         }
-        this.currentLayer = standardCluster;
-        this.map.addLayer(this.currentLayer);
-        
-        if (filtered && filtered.length > 0) {
-           const bounds = standardCluster.getBounds();
-           if(bounds.isValid()) this.map.fitBounds(bounds);
-        }
-      },
-      error: (err) => console.error('Erreur Standard:', err)
+      }
     });
   }
 
@@ -301,123 +366,63 @@ export class App implements AfterViewInit {
     let rows = '';
     for (const key in data) {
       if (data.hasOwnProperty(key) && key !== 'lat' && key !== 'lng') {
-         rows += `
-          <tr>
-            <td style="font-weight:bold; color:#555; padding:3px; border-bottom:1px solid #eee;">${key}</td>
-            <td style="padding:3px; border-bottom:1px solid #eee;">${data[key]}</td>
-          </tr>`;
+         rows += `<tr><td style="font-weight:bold">${key}</td><td>${data[key]}</td></tr>`;
       }
     }
-    return `<div style="max-height:300px; overflow-y:auto; min-width:250px;">
-              <h3 style="margin-top:0; color:#28a745; font-size:14px;">Détails</h3>
-              <table style="width:100%; border-collapse:collapse; font-size:12px;"><tbody>${rows}</tbody></table>
-            </div>`;
+    return `<div style="max-height:300px;overflow:auto"><table>${rows}</table></div>`;
   }
 }
 
 ------------------------------
 📄 Fichier : src/app/app.css
 ------------------------------
-/* Layout Principal */
-.map-container {
-  position: relative;
-  height: 100vh;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
+.map-container { position: relative; height: 100vh; width: 100%; display: flex; flex-direction: column; }
+#map { flex-grow: 1; width: 100%; height: 100%; z-index: 1; }
 
-#map {
-  flex-grow: 1;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-}
-
-/* Contrôles */
-.map-controls {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-  background: white;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  font-family: 'Segoe UI', Arial, sans-serif;
-  min-width: 250px;
-  max-width: 300px;
-}
+.map-controls { position: absolute; top: 20px; right: 20px; z-index: 1000; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); min-width: 250px; }
 .main-select select { width: 100%; padding: 6px; margin-top: 5px; }
 
 /* Filtres */
-.filter-container { margin-top: 10px; animation: fadeIn 0.3s ease-in-out; }
+.filter-container { margin-top: 10px; animation: fadeIn 0.3s; }
 .filter-header { display: flex; justify-content: space-between; margin-bottom: 10px; color: #28a745; }
-.toggle-btn { background: none; border: none; color: #007bff; font-size: 11px; cursor: pointer; text-decoration: underline; }
+.filter-header.recette-header { color: #007bff; /* Bleu pour Recette */ }
+
+.toggle-btn { background: none; border: none; color: #666; font-size: 11px; cursor: pointer; text-decoration: underline; }
 .filter-group { margin-bottom: 8px; }
 .filter-group label { display: block; font-size: 12px; color: #555; }
 .filter-group select { width: 100%; padding: 4px; }
 .reset-btn { width: 100%; padding: 6px; margin-top: 5px; background-color: #f8f9fa; border: 1px solid #ddd; cursor: pointer; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* --- CLUSTER BUDGET --- */
+/* --- CLUSTERS --- */
 ::ng-deep .budget-cluster-icon {
-  background-color: rgba(40, 167, 69, 0.95);
-  border: 2px solid white;
   border-radius: 50%;
   color: white;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  /* Augmentation de la taille pour le texte */
   width: 100px; 
   height: 100px; 
   box-shadow: 0 5px 15px rgba(0,0,0,0.4);
   text-align: center;
   cursor: pointer;
+  padding: 5px;
+  overflow: hidden;
   transition: transform 0.2s;
-  padding: 5px; /* Padding interne */
-  overflow: hidden;
 }
+::ng-deep .budget-cluster-icon:hover { transform: scale(1.1); z-index: 9999; }
+::ng-deep .budget-cluster-icon .amount { font-weight: bold; font-size: 11px; line-height: 1.2; }
+::ng-deep .budget-cluster-icon small { font-size: 9px; opacity: 0.8; font-weight: normal; }
+::ng-deep .budget-cluster-icon .location { font-size: 10px; font-weight: bold; color: #fff; margin: 2px 0; }
 
-::ng-deep .budget-cluster-icon:hover {
-  background-color: #218838;
-  transform: scale(1.1);
-  z-index: 9999;
-}
+/* --- BUDGET (Vert) --- */
+::ng-deep .budget-cluster-icon.gouvernorat { background-color: rgba(33, 136, 56, 0.95); border: 3px solid #c3e6cb; }
+::ng-deep .budget-cluster-icon.municipalite { background-color: rgba(40, 167, 69, 0.95); border: 2px solid white; }
 
-/* Montant */
-::ng-deep .budget-cluster-icon .amount {
-  font-weight: bold;
-  font-size: 11px;
-  line-height: 1.2;
-}
-
-/* Nom Géographique (Gouvernorat/Municipalité) */
-::ng-deep .budget-cluster-icon .location {
-  font-size: 10px;
-  font-weight: bold;
-  color: #d4edda; /* Vert très clair */
-  margin-top: 2px;
-  margin-bottom: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 90%;
-}
-
-::ng-deep .budget-cluster-icon small {
-  font-size: 9px;
-  opacity: 0.8;
-  font-weight: normal;
-}
-
-/* Variation de couleur subtile si c'est une municipalité précise */
-::ng-deep .budget-cluster-icon.municipalite {
-  background-color: rgba(30, 126, 52, 0.95); /* Vert plus foncé */
-  border-color: #c3e6cb;
-}
+/* --- RECETTE (Bleu) --- */
+::ng-deep .budget-cluster-icon.recette-gov { background-color: rgba(0, 86, 179, 0.95); border: 3px solid #b8daff; }
+::ng-deep .budget-cluster-icon.recette-mun { background-color: rgba(0, 123, 255, 0.95); border: 2px solid white; }
 
 ------------------------------
 📄 Fichier : src/app/app.component.ts
@@ -426,18 +431,15 @@ import { Component, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms'; 
-// On supprime LeafletModule, on va faire du JS pur pour la carte
-// import { LeafletModule } from '@bluehalo/ngx-leaflet'; 
-
+import { forkJoin } from 'rxjs'; // Pour charger 2 fichiers en même temps
 import { MapDataService } from './services/map-data.service';
 
-// On déclare la variable globale L fournie par le CDN dans index.html
 declare const L: any;
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, FormsModule], // Plus de LeafletModule
+  imports: [CommonModule, HttpClientModule, FormsModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   providers: [MapDataService]
@@ -445,226 +447,323 @@ declare const L: any;
 export class AppComponent implements AfterViewInit {
   map!: any;
   currentLayer: any = null;
+  activeLayers: any[] = [];
 
   categories: string[] = [ 
-    'Stade', 'Lycée', 'Maison des Jeunes', 'Poste', 'Université', 'École', 'Budget 2021' 
+    'Stade', 'Lycée', 'Maison des Jeunes', 'Poste', 'Université', 'École', 
+    'Budget 2021', 'Recette Municipalités' 
   ];
 
   isBudgetActive: boolean = false;
+  isRecetteActive: boolean = false;
   filtersVisible: boolean = true;
   
   allBudgetData: any[] = [];
-  filteredBudgetData: any[] = [];
+  allRecetteData: any[] = [];
   
+  // Listes pour les filtres
   listGouvernorats: string[] = [];
   listMunicipalites: string[] = [];
   
   selectedGov: string = '';
   selectedMun: string = '';
 
+  // Données filtrées
+  currentFilteredData: any[] = [];
+
   constructor(private mapService: MapDataService) {}
 
-  // Initialisation manuelle après que la vue soit chargée
   ngAfterViewInit() {
-    this.initMap();
+    setTimeout(() => {
+        if (typeof L !== 'undefined') this.initMap();
+    }, 200);
   }
 
   initMap() {
-    // On crée la carte manuellement sur la div id="map"
     this.map = L.map('map').setView([33.8869, 9.5375], 7);
-
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
-
-    // On charge les données par défaut
     this.loadStandardData('Toutes');
   }
 
   onCategoryChange(event: any) {
     const selectedCat = event.target.value;
     
+    // Reset
     this.isBudgetActive = (selectedCat === 'Budget 2021');
-
-    if (this.currentLayer && this.map) {
-      this.map.removeLayer(this.currentLayer);
-      this.currentLayer = null;
-    }
+    this.isRecetteActive = (selectedCat === 'Recette Municipalités');
+    this.selectedGov = '';
+    this.selectedMun = '';
+    this.listGouvernorats = [];
+    this.listMunicipalites = [];
+    this.clearMap();
 
     if (this.isBudgetActive) {
       this.loadBudgetData();
+    } else if (this.isRecetteActive) {
+      this.loadRecetteData();
     } else {
       this.loadStandardData(selectedCat);
     }
   }
 
-  // --- LOGIQUE BUDGET ---
+  clearMap() {
+    if (this.currentLayer) this.map.removeLayer(this.currentLayer);
+    this.activeLayers.forEach(l => this.map.removeLayer(l));
+    this.activeLayers = [];
+    this.currentLayer = null;
+  }
+
+  // --- 1. CHARGEMENT BUDGET (inchangé) ---
   loadBudgetData() {
     this.mapService.getBudget2021().subscribe({
       next: (data) => {
         this.allBudgetData = data;
-        this.extractFilterOptions();
-        this.applyBudgetFilters();
+        this.prepareFilters(data, 'Nom_Gouvernorat_Ar', 'Nom_Municipalite_Ar');
+        this.currentFilteredData = data;
+        this.renderHierarchicalCluster(data, 'budget');
       },
-      error: (err) => console.error('Erreur Budget:', err)
+      error: (e) => console.error(e)
     });
   }
 
-  extractFilterOptions() {
-    const govs = this.allBudgetData.map(item => item.Nom_Gouvernorat_Ar).filter(Boolean);
+  // --- 2. CHARGEMENT RECETTE (Nouveau : Jointure avec Budget pour GPS) ---
+  loadRecetteData() {
+    // On charge Budget (pour les coords) ET Recettes (pour les montants)
+    forkJoin({
+      budget: this.mapService.getBudget2021(),
+      recette: this.mapService.getRecetteMunicipalites()
+    }).subscribe({
+      next: (res) => {
+        // 1. Création d'un dictionnaire de coordonnées depuis le Budget
+        // Clé = Code Municipalité (Code_Municipalite_INS)
+        const coordsMap = new Map();
+        res.budget.forEach((b: any) => {
+          if (b.lat && b.lng && b.Code_Municipalite_INS) {
+            coordsMap.set(b.Code_Municipalite_INS, { lat: b.lat, lng: b.lng });
+          }
+        });
+
+        // 2. Nettoyage et Enrichissement des Recettes
+        const mergedData: any[] = [];
+        
+        res.recette.forEach((r: any) => {
+          // On ignore la ligne d'en-tête si elle existe ("FIELD1" == "Code_Municipalite_INS")
+          if (r.FIELD1 === 'Code_Municipalite_INS') return;
+
+          // On récupère les coords via le code municipalité (FIELD1)
+          const coords = coordsMap.get(r.FIELD1);
+
+          if (coords) {
+            mergedData.push({
+              // On garde les données d'origine
+              ...r,
+              // On ajoute les coords
+              lat: coords.lat,
+              lng: coords.lng,
+              // On mappe les champs cryptiques vers des noms lisibles pour notre code
+              Nom_Municipalite_Ar: r.FIELD2,
+              Nom_Gouvernorat_Ar: r.FIELD3,
+              recettes_previsions: r.FIELD20,
+              recettes_realisations: r.FIELD21,
+              // libellé article (utile pour le popup)
+              lib_article: r.FIELD16 
+            });
+          }
+        });
+
+        this.allRecetteData = mergedData;
+        
+        // 3. Initialisation des filtres et affichage
+        this.prepareFilters(mergedData, 'Nom_Gouvernorat_Ar', 'Nom_Municipalite_Ar');
+        this.currentFilteredData = mergedData;
+        this.renderHierarchicalCluster(mergedData, 'recette');
+      },
+      error: (e) => console.error('Erreur chargement jointure:', e)
+    });
+  }
+
+  // --- FILTRES ---
+  prepareFilters(data: any[], govKey: string, munKey: string) {
+    const govs = data.map(item => item[govKey]).filter(Boolean);
     this.listGouvernorats = [...new Set(govs)].sort();
-    const muns = this.allBudgetData.map(item => item.Nom_Municipalite_Ar).filter(Boolean);
+    const muns = data.map(item => item[munKey]).filter(Boolean);
     this.listMunicipalites = [...new Set(muns)].sort();
   }
 
-  applyBudgetFilters() {
-    this.filteredBudgetData = this.allBudgetData.filter(item => {
-      const matchGov = this.selectedGov ? item.Nom_Gouvernorat_Ar === this.selectedGov : true;
-      const matchMun = this.selectedMun ? item.Nom_Municipalite_Ar === this.selectedMun : true;
+  applyFilters() {
+    const sourceData = this.isBudgetActive ? this.allBudgetData : this.allRecetteData;
+    const type = this.isBudgetActive ? 'budget' : 'recette';
+    
+    // Grâce au mapping, on utilise les mêmes clés pour les deux !
+    const govKey = 'Nom_Gouvernorat_Ar';
+    const munKey = 'Nom_Municipalite_Ar';
+
+    this.currentFilteredData = sourceData.filter(item => {
+      const matchGov = this.selectedGov ? item[govKey] === this.selectedGov : true;
+      const matchMun = this.selectedMun ? item[munKey] === this.selectedMun : true;
       return matchGov && matchMun;
     });
-    this.renderBudgetLayer(this.filteredBudgetData);
+
+    this.renderHierarchicalCluster(this.currentFilteredData, type);
   }
 
   resetFilters() {
     this.selectedGov = '';
     this.selectedMun = '';
-    this.applyBudgetFilters();
+    this.applyFilters();
   }
 
-  renderBudgetLayer(data: any[]) {
-    if (this.currentLayer && this.map) {
-      this.map.removeLayer(this.currentLayer);
-    }
+  // --- RENDU CLUSTER ---
+  renderHierarchicalCluster(data: any[], type: 'budget' | 'recette') {
+    this.clearMap();
 
-    // L.markerClusterGroup existe forcément car chargé par le CDN
-    const budgetCluster = L.markerClusterGroup({
-      maxClusterRadius: 80,
-      iconCreateFunction: (cluster: any) => {
-        const markers = cluster.getAllChildMarkers();
-        let totalPrevision = 0;
-        const govs = new Set();
-        const muns = new Set();
-
-        markers.forEach((marker: any) => {
-          if (marker.options.previsionAmount) totalPrevision += marker.options.previsionAmount;
-          if (marker.options.govName) govs.add(marker.options.govName);
-          if (marker.options.munName) muns.add(marker.options.munName);
-        });
-
-        let locationLabel = 'Zones Multiples';
-        let locationClass = 'mixed';
-
-        if (muns.size === 1) {
-          locationLabel = [...muns][0] as string;
-          locationClass = 'municipalite';
-        } else if (govs.size === 1) {
-          locationLabel = [...govs][0] as string;
-          locationClass = 'gouvernorat';
-        } else {
-          locationLabel = 'Divers';
-        }
-
-        const formattedSum = new Intl.NumberFormat('fr-TN', { 
-          style: 'currency', currency: 'TND', maximumFractionDigits: 0 
-        }).format(totalPrevision);
-
-        return L.divIcon({
-          html: `<div class="budget-cluster-icon ${locationClass}">
-                   <span class="amount">${formattedSum}</span>
-                   <span class="location">${locationLabel}</span>
-                   <small>(${markers.length} projets)</small>
-                 </div>`,
-          className: 'budget-cluster',
-          iconSize: L.point(100, 100)
-        });
-      }
-    });
+    const groupedByGov: { [key: string]: any[] } = {};
+    const govKey = 'Nom_Gouvernorat_Ar'; 
 
     data.forEach(item => {
-      const lat = parseFloat(item.lat);
-      const lng = parseFloat(item.lng);
-      const rawPrevision = item.depenses_prevision ? String(item.depenses_prevision) : '0';
-      const valPrevision = parseFloat(rawPrevision.replace(/\s/g, '').replace(',', '.'));
-
-      if (!isNaN(lat) && !isNaN(lng)) {
-        const marker = L.marker([lat, lng], {
-          icon: L.icon({
-            iconUrl: 'assets/marker-icon.png',
-            shadowUrl: 'assets/marker-shadow.png',
-            iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
-          })
-        });
-        
-        // Stockage des données
-        (marker as any).options.previsionAmount = valPrevision;
-        (marker as any).options.govName = item.Nom_Gouvernorat_Ar;
-        (marker as any).options.munName = item.Nom_Municipalite_Ar;
-
-        marker.bindPopup(this.generateFullPopup(item));
-        budgetCluster.addLayer(marker);
-      }
+      const g = item[govKey] || 'Autre';
+      if (!groupedByGov[g]) groupedByGov[g] = [];
+      groupedByGov[g].push(item);
     });
 
-    this.currentLayer = budgetCluster;
-    this.map.addLayer(this.currentLayer);
-    
-    if (data.length > 0) {
-        const bounds = budgetCluster.getBounds();
-        if (bounds.isValid()) this.map.fitBounds(bounds);
+    Object.keys(groupedByGov).forEach(govName => {
+      const groupData = groupedByGov[govName];
+      const cluster = L.markerClusterGroup({
+        maxClusterRadius: 80,
+        iconCreateFunction: (c: any) => this.createClusterIcon(c, govName, type)
+      });
+
+      groupData.forEach(item => {
+        const marker = this.createMarker(item, type);
+        if (marker) cluster.addLayer(marker);
+      });
+
+      this.activeLayers.push(cluster);
+      this.map.addLayer(cluster);
+    });
+
+    if (this.activeLayers.length > 0) {
+       const bounds = this.activeLayers[0].getBounds();
+       if(bounds.isValid()) this.map.fitBounds(bounds);
     }
   }
 
-  loadStandardData(category: string) {
+  createClusterIcon(cluster: any, defaultLabel: string, type: 'budget' | 'recette') {
+    const markers = cluster.getAllChildMarkers();
+    let total = 0;
+    const muns = new Set();
+
+    markers.forEach((m: any) => {
+      if (m.options.amount) total += m.options.amount;
+      if (m.options.munName) muns.add(m.options.munName);
+    });
+
+    let label = defaultLabel;
+    let cssType = type === 'budget' ? 'gouvernorat' : 'recette-gov'; 
+    let cssSub = type === 'budget' ? 'municipalite' : 'recette-mun';
+
+    if (muns.size === 1) {
+      label = [...muns][0] as string;
+      cssType = cssSub;
+    }
+
+    const fmt = new Intl.NumberFormat('fr-TN', { 
+      style: 'currency', currency: 'TND', maximumFractionDigits: 0 
+    }).format(total);
+
+    return L.divIcon({
+      html: `<div class="budget-cluster-icon ${cssType}">
+               <span class="amount">${fmt}</span>
+               <span class="location">${label}</span>
+               <small>(${markers.length})</small>
+             </div>`,
+      className: 'budget-cluster',
+      iconSize: L.point(100, 100)
+    });
+  }
+
+  createMarker(item: any, type: 'budget' | 'recette') {
+    const lat = parseFloat(item.lat);
+    const lng = parseFloat(item.lng);
+    
+    let rawAmount = '0';
+    if (type === 'budget') rawAmount = item.depenses_prevision;
+    if (type === 'recette') rawAmount = item.recettes_previsions || item.FIELD20; // Support FIELD20
+
+    if (isNaN(lat) || isNaN(lng)) return null;
+
+    const val = parseFloat(String(rawAmount).replace(/\s/g, '').replace(',', '.'));
+
+    const marker = L.marker([lat, lng], {
+      icon: L.icon({
+        iconUrl: 'assets/marker-icon.png',
+        shadowUrl: 'assets/marker-shadow.png',
+        iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
+      })
+    });
+
+    (marker as any).options.amount = val;
+    (marker as any).options.govName = item.Nom_Gouvernorat_Ar;
+    (marker as any).options.munName = item.Nom_Municipalite_Ar;
+
+    marker.bindPopup(this.generateFullPopup(item));
+    return marker;
+  }
+
+  // --- STANDARDS ---
+  loadStandardData(cat: string) {
     this.mapService.getLocations().subscribe({
-      next: (locations) => {
-        const filtered = category === 'Toutes' 
-          ? locations 
-          : locations.filter(l => l.categorie === category);
-
-        const standardCluster = L.markerClusterGroup();
-
-        if (filtered) {
-          filtered.forEach(loc => {
-            const marker = L.marker([loc.lat, loc.lng], {
-              icon: L.icon({
-                iconUrl: 'assets/marker-icon.png',
-                shadowUrl: 'assets/marker-shadow.png',
-                iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
-              })
+      next: (locs) => {
+        const filtered = cat === 'Toutes' ? locs : locs.filter(l => l.categorie === cat);
+        const cluster = L.markerClusterGroup();
+        if(filtered) {
+            filtered.forEach(l => {
+               const lat = parseFloat(l.lat);
+               const lng = parseFloat(l.lng);
+               if(!isNaN(lat) && !isNaN(lng)) {
+                   const m = L.marker([lat, lng], {
+                     icon: L.icon({
+                       iconUrl: 'assets/marker-icon.png',
+                       shadowUrl: 'assets/marker-shadow.png',
+                       iconSize: [25, 41], iconAnchor: [12, 41]
+                     })
+                   });
+                   m.bindPopup(`<b>${l.nom}</b><br>${l.categorie}`);
+                   cluster.addLayer(m);
+               }
             });
-            marker.bindPopup(`<b>${loc.nom}</b><br>${loc.categorie}`);
-            standardCluster.addLayer(marker);
-          });
         }
-        this.currentLayer = standardCluster;
-        this.map.addLayer(this.currentLayer);
-        
-        if (filtered && filtered.length > 0) {
-           const bounds = standardCluster.getBounds();
-           if(bounds.isValid()) this.map.fitBounds(bounds);
+        this.activeLayers.push(cluster);
+        this.map.addLayer(cluster);
+        if(filtered && filtered.length > 0) {
+            const b = cluster.getBounds();
+            if(b.isValid()) this.map.fitBounds(b);
         }
-      },
-      error: (err) => console.error('Erreur Standard:', err)
+      }
     });
   }
 
   generateFullPopup(data: any): string {
     let rows = '';
+    // On affiche tout sauf les champs techniques qu'on a ajoutés ou qui sont redondants
+    const ignore = ['lat', 'lng', 'Code_Municipalite_INS', 'Nom_Municipalite_Ar', 'Nom_Gouvernorat_Ar', 'recettes_previsions', 'recettes_realisations', 'FIELD1', 'FIELD3', 'FIELD4'];
+    
     for (const key in data) {
-      if (data.hasOwnProperty(key) && key !== 'lat' && key !== 'lng') {
-         rows += `
-          <tr>
-            <td style="font-weight:bold; color:#555; padding:3px; border-bottom:1px solid #eee;">${key}</td>
-            <td style="padding:3px; border-bottom:1px solid #eee;">${data[key]}</td>
-          </tr>`;
+      if (!ignore.includes(key)) {
+         rows += `<tr><td style="font-weight:bold; padding:2px 5px">${key}</td><td style="padding:2px 5px">${data[key]}</td></tr>`;
       }
     }
-    return `<div style="max-height:300px; overflow-y:auto; min-width:250px;">
-              <h3 style="margin-top:0; color:#28a745; font-size:14px;">Détails</h3>
-              <table style="width:100%; border-collapse:collapse; font-size:12px;"><tbody>${rows}</tbody></table>
-            </div>`;
+    // On ajoute proprement les champs importants en haut
+    const header = `
+        <tr><td style="font-weight:bold">Municipalité</td><td>${data.Nom_Municipalite_Ar}</td></tr>
+        <tr><td style="font-weight:bold">Gouvernorat</td><td>${data.Nom_Gouvernorat_Ar}</td></tr>
+        <tr><td style="font-weight:bold">Prévisions</td><td>${data.recettes_previsions}</td></tr>
+    `;
+
+    return `<div style="max-height:300px;overflow:auto;font-size:12px"><table>${header}${rows}</table></div>`;
   }
 }
 
@@ -685,52 +784,26 @@ export const appConfig: ApplicationConfig = {
 ------------------------------
 📄 Fichier : src/app/app.component.css
 ------------------------------
-/* Layout Principal */
-.map-container {
-  position: relative;
-  height: 100vh;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
+.map-container { position: relative; height: 100vh; width: 100%; display: flex; flex-direction: column; }
+#map { flex-grow: 1; width: 100%; height: 100%; z-index: 1; }
 
-#map {
-  flex-grow: 1;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-}
-
-/* Contrôles */
-.map-controls {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-  background: white;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  font-family: 'Segoe UI', Arial, sans-serif;
-  min-width: 250px;
-  max-width: 300px;
-}
+.map-controls { position: absolute; top: 20px; right: 20px; z-index: 1000; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); min-width: 250px; }
 .main-select select { width: 100%; padding: 6px; margin-top: 5px; }
 
 /* Filtres */
-.filter-container { margin-top: 10px; animation: fadeIn 0.3s ease-in-out; }
+.filter-container { margin-top: 10px; animation: fadeIn 0.3s; }
 .filter-header { display: flex; justify-content: space-between; margin-bottom: 10px; color: #28a745; }
-.toggle-btn { background: none; border: none; color: #007bff; font-size: 11px; cursor: pointer; text-decoration: underline; }
+.filter-header.recette-header { color: #007bff; } /* Bleu si Recette */
+
+.toggle-btn { background: none; border: none; color: #666; font-size: 11px; cursor: pointer; text-decoration: underline; }
 .filter-group { margin-bottom: 8px; }
 .filter-group label { display: block; font-size: 12px; color: #555; }
 .filter-group select { width: 100%; padding: 4px; }
 .reset-btn { width: 100%; padding: 6px; margin-top: 5px; background-color: #f8f9fa; border: 1px solid #ddd; cursor: pointer; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* --- CLUSTER BUDGET --- */
+/* --- CLUSTERS --- */
 ::ng-deep .budget-cluster-icon {
-  background-color: rgba(40, 167, 69, 0.95);
-  border: 2px solid white;
   border-radius: 50%;
   color: white;
   display: flex;
@@ -742,48 +815,22 @@ export const appConfig: ApplicationConfig = {
   box-shadow: 0 5px 15px rgba(0,0,0,0.4);
   text-align: center;
   cursor: pointer;
-  transition: transform 0.2s;
   padding: 5px;
   overflow: hidden;
+  transition: transform 0.2s;
 }
+::ng-deep .budget-cluster-icon:hover { transform: scale(1.1); z-index: 9999; }
+::ng-deep .budget-cluster-icon .amount { font-weight: bold; font-size: 11px; line-height: 1.2; }
+::ng-deep .budget-cluster-icon small { font-size: 9px; opacity: 0.8; font-weight: normal; }
+::ng-deep .budget-cluster-icon .location { font-size: 10px; font-weight: bold; color: #fff; margin: 2px 0; }
 
-::ng-deep .budget-cluster-icon:hover {
-  background-color: #218838;
-  transform: scale(1.1);
-  z-index: 9999;
-}
+/* --- BUDGET (Vert) --- */
+::ng-deep .budget-cluster-icon.gouvernorat { background-color: rgba(33, 136, 56, 0.95); border: 3px solid #c3e6cb; }
+::ng-deep .budget-cluster-icon.municipalite { background-color: rgba(40, 167, 69, 0.95); border: 2px solid white; }
 
-/* Montant */
-::ng-deep .budget-cluster-icon .amount {
-  font-weight: bold;
-  font-size: 11px;
-  line-height: 1.2;
-}
-
-/* Nom Géographique (Gouvernorat/Municipalité) */
-::ng-deep .budget-cluster-icon .location {
-  font-size: 10px;
-  font-weight: bold;
-  color: #d4edda; /* Vert très clair */
-  margin-top: 2px;
-  margin-bottom: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 90%;
-}
-
-::ng-deep .budget-cluster-icon small {
-  font-size: 9px;
-  opacity: 0.8;
-  font-weight: normal;
-}
-
-/* Variation de couleur subtile si c'est une municipalité précise */
-::ng-deep .budget-cluster-icon.municipalite {
-  background-color: rgba(30, 126, 52, 0.95);
-  border-color: #c3e6cb;
-}
+/* --- RECETTE (Bleu) --- */
+::ng-deep .budget-cluster-icon.recette-gov { background-color: rgba(0, 86, 179, 0.95); border: 3px solid #b8daff; }
+::ng-deep .budget-cluster-icon.recette-mun { background-color: rgba(0, 123, 255, 0.95); border: 2px solid white; }
 
 ------------------------------
 📄 Fichier : src/app/app.html
@@ -800,10 +847,10 @@ export const appConfig: ApplicationConfig = {
       </select>
     </div>
 
-    <div *ngIf="isBudgetActive" class="filter-container">
+    <div *ngIf="isBudgetActive || isRecetteActive" class="filter-container">
       <hr>
-      <div class="filter-header">
-        <strong>Filtres Budget</strong>
+      <div class="filter-header" [class.recette-header]="isRecetteActive">
+        <strong>Filtres {{ isRecetteActive ? 'Recettes' : 'Budget' }}</strong>
         <button class="toggle-btn" (click)="filtersVisible = !filtersVisible">
           {{ filtersVisible ? 'Masquer' : 'Afficher' }}
         </button>
@@ -813,7 +860,7 @@ export const appConfig: ApplicationConfig = {
         
         <div class="filter-group">
           <label>Gouvernorat :</label>
-          <select [(ngModel)]="selectedGov" (change)="applyBudgetFilters()">
+          <select [(ngModel)]="selectedGov" (change)="applyFilters()">
             <option value="">(Tous)</option>
             <option *ngFor="let g of listGouvernorats" [value]="g">{{ g }}</option>
           </select>
@@ -821,7 +868,7 @@ export const appConfig: ApplicationConfig = {
 
         <div class="filter-group">
           <label>Municipalité :</label>
-          <select [(ngModel)]="selectedMun" (change)="applyBudgetFilters()">
+          <select [(ngModel)]="selectedMun" (change)="applyFilters()">
             <option value="">(Toutes)</option>
             <option *ngFor="let m of listMunicipalites" [value]="m">{{ m }}</option>
           </select>
@@ -849,13 +896,19 @@ export class MapDataService {
   constructor(private http: HttpClient) { }
 
   getLocations(): Observable<any[]> {
-    // Les établissements classiques (Lycées, etc.)
     return this.http.get<any[]>('assets/all_locations.json');
   }
 
   getBudget2021(): Observable<any[]> {
-    // Le fichier spécifique Budget
     return this.http.get<any[]>('assets/budget2021.json');
+  }
+
+  getRecetteMunicipalites(): Observable<any[]> {
+    return this.http.get<any[]>('assets/recetteMunicipalites.json');
+  }
+
+  getDelegations(): Observable<any[]> {
+    return this.http.get<any[]>('assets/delegations.json');
   }
 }
 
@@ -878,13 +931,8 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
 import { AppComponent } from './app/app.component';
 
-// --- CORRECTIF LEAFLET PRODUCTION ---
-// 1. On importe Leaflet
-import * as L from 'leaflet';
-import 'leaflet.markercluster';
-
-// 2. On force l'exposition globale pour les plugins qui cherchent window.L
-(window as any).L = L;
+// NOTE : Aucune importation de Leaflet ici.
+// Leaflet est chargé globalement par le CDN dans index.html.
 
 bootstrapApplication(AppComponent, appConfig)
   .catch((err) => console.error(err));
@@ -892,16 +940,12 @@ bootstrapApplication(AppComponent, appConfig)
 ------------------------------
 📄 Fichier : src/styles.css
 ------------------------------
-/* Import des styles de base Leaflet */
-@import "leaflet/dist/leaflet.css";
-
-/* Import des styles pour les clusters (Nécessaire pour la logique, même si on style par dessus) */
-@import "leaflet.markercluster/dist/MarkerCluster.css";
-@import "leaflet.markercluster/dist/MarkerCluster.Default.css";
-
+/* Styles globaux */
 html, body { 
     height: 100%; 
     margin: 0; 
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
+/* Note: Les CSS de Leaflet sont chargés via CDN dans index.html */
 
